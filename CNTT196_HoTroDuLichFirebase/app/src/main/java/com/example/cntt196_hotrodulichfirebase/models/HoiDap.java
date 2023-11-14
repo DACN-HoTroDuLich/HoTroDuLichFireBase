@@ -8,9 +8,18 @@ public class HoiDap implements Serializable {
     private String maHoiDap;
     private String maNguoiHoi;
     private String tenNguoiHoi;
+    private String imgNguoiHoi;
     private String noiDungHoiDap;
     private LocalDateTime ngayHoi;
     private ArrayList<TraLoi> traLois;
+
+    public String getImgNguoiHoi() {
+        return imgNguoiHoi;
+    }
+
+    public void setImgNguoiHoi(String imgNguoiHoi) {
+        this.imgNguoiHoi = imgNguoiHoi;
+    }
 
     public String getMaHoiDap() {
         return maHoiDap;
@@ -64,11 +73,13 @@ public class HoiDap implements Serializable {
     {
         this.ngayHoi=LocalDateTime.now();
     }
-    public HoiDap(String maHoiDap, String maNguoiHoi, String tenNguoiHoi, String noiDungHoiDap, LocalDateTime ngayHoi) {
+    public HoiDap(String maHoiDap, String maNguoiHoi, String tenNguoiHoi, String noiDungHoiDap, LocalDateTime ngayHoi,
+                  String imgNguoiHoi) {
         this.maHoiDap = maHoiDap;
         this.maNguoiHoi = maNguoiHoi;
         this.tenNguoiHoi = tenNguoiHoi;
         this.noiDungHoiDap = noiDungHoiDap;
         this.ngayHoi = ngayHoi;
+        this.imgNguoiHoi=imgNguoiHoi;
     }
 }

@@ -1,6 +1,7 @@
 package com.example.cntt196_hotrodulichfirebase;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,12 +11,16 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.cntt196_hotrodulichfirebase.adapters.AdapterTravel;
 import com.example.cntt196_hotrodulichfirebase.models.HinhAnh;
+import com.example.cntt196_hotrodulichfirebase.models.Hotel;
+import com.example.cntt196_hotrodulichfirebase.models.NguoiDang;
 import com.example.cntt196_hotrodulichfirebase.models.Travel;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
@@ -23,9 +28,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -54,8 +62,7 @@ public class FragmentrTravel extends Fragment {
 
     private boolean Flag;
 
-    private QuerySnapshot queryDocumentSnapshots;
-    private ArrayList<DocumentSnapshot> documentSnapshots;
+    private ArrayList<Travel> arrayListTravel;
     //private ArrayList<Travel> dsTravel;
     //===================
 
@@ -95,18 +102,15 @@ public class FragmentrTravel extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        arrayListTravel=new ArrayList<>();
         context=requireContext();
         mView= inflater.inflate(R.layout.fragment_fragmentr_travel, container, false);
         addControls(mView);
         //dsTravel=new ArrayList<Travel>();
+        adapterTravel=new AdapterTravel(arrayListTravel,context);
+        listView.setAdapter(adapterTravel);
         LoadListTravel();
 
-
-
-
-
-        // Inflate the layout for this fragment
-        //return inflater.inflate(R.layout.fragment_fragmentr_travel, container, false);
         return mView;
     }
     private void addControls(View view) {
@@ -120,45 +124,56 @@ public class FragmentrTravel extends Fragment {
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        if (queryDocumentSnapshots!=null)
+                        if(queryDocumentSnapshots != null)
                         {
-                            adapterTravel=new AdapterTravel(queryDocumentSnapshots,getContext());
-                            listView.setAdapter(adapterTravel);
+                            for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments())
+                            {
+                                FirebaseStorage storage = FirebaseStorage.getInstance();
+                                StorageReference storageRef = storage.getReference();
+
+                                Travel travel=new Travel();
+                                travel.setID_Document(document.getId());
+                                Map<String,Object> subDocument=(Map<String,Object>) document.get("NguoiDang");
+                                Log.d("TravelNguoiDang"," => " +  subDocument);
+                                if(subDocument!=null)
+                                {
+                                    NguoiDang nguoiDang=new NguoiDang();
+                                    nguoiDang.setMaNguoiDang((String)subDocument.get("MaNguoiDang"));
+                                    nguoiDang.setTenNguoiDang((String)subDocument.get("TenNguoiDang"));
+                                    nguoiDang.setAnhDaiDien((String)subDocument.get("AnhDaiDien"));
+                                    travel.setNguoiDang(nguoiDang);
+                                }
+                                travel.setTieuDe(document.getString("TieuDe"));
+                                travel.setMoTa(document.getString("MoTa"));
+                                travel.setDanhGias(null);
+                                travel.setDiaChi(document.getString("DiaChi"));
+                                travel.setGiaMax(document.getDouble("GiaMax"));
+                                travel.setGiaMin(document.getDouble("GiaMin"));
+
+                                ArrayList<String> dsHinh=new ArrayList<>();
+                                dsHinh= (ArrayList<String>) document.get("HinhAnh");
+                                travel.setHinhAnhs(dsHinh);
+
+
+                                Timestamp timestamp=document.getTimestamp("NgayDang");
+
+                                travel.setNgayDang(timestamp.toDate().toInstant()
+                                        .atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+                                for(int i=0;i<15;i++)
+                                {
+                                    arrayListTravel.add(travel);
+                                    arrayListTravel.add(travel);
+                                    arrayListTravel.add(travel);
+                                    arrayListTravel.add(travel);
+                                    arrayListTravel.add(travel);
+                                    arrayListTravel.add(travel);
+                                }
+                                adapterTravel.notifyDataSetChanged();
+                            }
                         }
 
                     }
                 });
-//                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//                    @Override
-//                    public void onComplete(Task<QuerySnapshot> task) {
-//                        if(task.isSuccessful())
-//                        {
-//                            for (QueryDocumentSnapshot document : task.getResult()) {
-//                                Travel travel=new Travel();
-//                                travel.setID_Document(document.getId());
-//                                travel.setTieuDe(document.getString("TieuDe"));
-//                                travel.setMoTa(document.getString("MoTa"));
-//                                travel.setDanhGias(null);
-//                                travel.setDiaChi(document.getString("DiaChi"));
-//                                travel.setGiaMax(document.getDouble("GiaMax"));
-//                                travel.setGiaMin(document.getDouble("GiaMin"));
-//                                travel.setHinhAnhs((ArrayList<HinhAnh>) document.get("HinhAnh"));
-//
-//                                Timestamp timestamp=document.getTimestamp("NgayDang");
-//
-//                                travel.setNgayDang(timestamp.toDate().toInstant()
-//                                        .atZone(ZoneId.systemDefault()).toLocalDateTime());
-//                                dsTravel.add(travel);
-//                                dsTravel.add(travel);
-//
-//                                adapterTravel=new AdapterTravel(dsTravel,getContext());
-//                                Log.d("TravelModel", document.getId() + " => " +  dsTravel.size());
-//                                listView.setAdapter(adapterTravel);
-//                            }
-//                        }
-//                    }
-//                });
-
-
     }
 }

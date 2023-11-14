@@ -72,8 +72,8 @@
                 android:id="@+id/imgHotel_hotel_custom"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/background_hotel_ver1" />
+                android:layout_weight="1" />
+<!--            android:background="@drawable/background_hotel_ver1"-->
 
             <LinearLayout
                 android:id="@+id/linearLayout_hotel_custom"

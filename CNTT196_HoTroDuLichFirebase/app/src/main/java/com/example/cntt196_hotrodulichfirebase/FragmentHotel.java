@@ -1,23 +1,37 @@
 package com.example.cntt196_hotrodulichfirebase;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.cntt196_hotrodulichfirebase.adapters.AdapterHotel;
 import com.example.cntt196_hotrodulichfirebase.adapters.AdapterTravel;
+import com.example.cntt196_hotrodulichfirebase.models.DanhGia;
+import com.example.cntt196_hotrodulichfirebase.models.Hotel;
+import com.example.cntt196_hotrodulichfirebase.models.NguoiDang;
+import com.example.cntt196_hotrodulichfirebase.models.Phong;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -45,8 +59,7 @@ public class FragmentHotel extends Fragment {
 
     private boolean Flag;
 
-    private QuerySnapshot queryDocumentSnapshots;
-    private ArrayList<DocumentSnapshot> documentSnapshots;
+    private ArrayList<Hotel> arrayListHotel;
     public FragmentHotel() {
         // Required empty public constructor
     }
@@ -82,10 +95,12 @@ public class FragmentHotel extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        arrayListHotel=new ArrayList<>();
         mView = inflater.inflate(R.layout.fragment_hotel, container, false);
         context=requireContext();
         addControls(mView);
-        //dsTravel=new ArrayList<Travel>();
+        adapterHotel=new AdapterHotel(arrayListHotel,getContext());
+        listView.setAdapter(adapterHotel);
         LoadListHotel();
         return mView;
     }
@@ -102,8 +117,84 @@ public class FragmentHotel extends Fragment {
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         if (queryDocumentSnapshots!=null)
                         {
-                            adapterHotel=new AdapterHotel(queryDocumentSnapshots,getContext());
-                            listView.setAdapter(adapterHotel);
+
+                            for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments())
+                            {
+                                Hotel hotel=new Hotel();
+                                hotel.setID_Document(document.getId());
+                                Map<String,Object> subDocument=(Map<String,Object>) document.get("NguoiDang");
+                                Log.d("HotelNguoiDang"," => " +  subDocument);
+                                if(subDocument!=null)
+                                {
+                                    NguoiDang nguoiDang=new NguoiDang();
+                                    nguoiDang.setMaNguoiDang((String)subDocument.get("MaNguoiDang"));
+                                    nguoiDang.setTenNguoiDang((String)subDocument.get("TenNguoiDang"));
+                                    nguoiDang.setAnhDaiDien((String)subDocument.get("AnhDaiDien"));
+                                    hotel.setNguoiDang(nguoiDang);
+                                }
+                                hotel.setTenKhachSan(document.getString("TenKhachSan"));
+                                hotel.setMoTa(document.getString("MoTa"));
+                                hotel.setDanhGias(null);
+                                hotel.setDiaChi(document.getString("DiaChi"));
+                                hotel.setTrangThai(document.getBoolean("TrangThai"));
+                                hotel.setHangSao((long)document.get("HangSao"));
+
+                                hotel.setHinhAnhs((ArrayList<String>) document.get("HinhAnh"));
+
+                                ArrayList<Phong> dsPhong=new ArrayList<>();
+                                ArrayList<Map<String,Object>> subArrayDocument= (ArrayList<Map<String, Object>>) document.get("Phong");
+                                if(subArrayDocument!=null)
+                                {
+                                    Log.e("subArrayDocument","=>"+subArrayDocument);
+                                    for (Map<String,Object> objectMap:subArrayDocument)
+                                    {
+                                        Phong phong=new Phong();
+                                        phong.setGiaMax((long) objectMap.get("GiaMax"));
+                                        phong.setGiaMin((long) objectMap.get("GiaMin"));
+                                        phong.setSoGiuong((long) objectMap.get("SoGiuong"));
+                                        phong.setHinhAnh((String) objectMap.get("HinhAnh"));
+                                        dsPhong.add(phong);
+                                    }
+                                }
+                                hotel.setPhongs(dsPhong);
+
+                                ArrayList<DanhGia> dsDanhGia=new ArrayList<>();
+                                ArrayList<Map<String,Object>> subArrayDocumentDanhGia= (ArrayList<Map<String, Object>>) document.get("DanhGia");
+                                if(subArrayDocumentDanhGia!=null)
+                                {
+                                    for (Map<String,Object> objectMap:subArrayDocumentDanhGia)
+                                    {
+                                        DanhGia danhGia=new DanhGia();
+                                        danhGia.setMaNguoiDanhGia((String) objectMap.get("MaNguoiDanhGia"));
+                                        //lay bien thoi gian kieu timestamp
+                                        Timestamp DanhGiatimestamp= (Timestamp) objectMap.get("NgayDang");
+                                        //convert sang localdatetime
+                                        danhGia.setNgayDang(DanhGiatimestamp.toDate().toInstant()
+                                                .atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+                                        danhGia.setTenNguoiDanhGia((String) objectMap.get("TenNguoiDanhGia"));
+                                        danhGia.setRate((Long) objectMap.get("Rate"));
+                                        Log.e("Rate","=>"+danhGia.getRate());
+                                        danhGia.setNoiDung((String) objectMap.get("NoiDungDanhGia"));
+                                        danhGia.setImgNguoiDang((String) objectMap.get("avartaNguoiDanhGia"));
+                                        dsDanhGia.add(danhGia);
+                                    }
+                                }
+                                hotel.setDanhGias(dsDanhGia);
+
+                                Timestamp timestamp=document.getTimestamp("NgayDang");
+
+                                hotel.setNgayDang(timestamp.toDate().toInstant()
+                                        .atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+                                for(int i=0;i<15;i++)
+                                {
+                                    arrayListHotel.add(hotel);
+                                    arrayListHotel.add(hotel);
+                                    arrayListHotel.add(hotel);
+                                }
+                                adapterHotel.notifyDataSetChanged();
+                            }
                         }
 
                     }

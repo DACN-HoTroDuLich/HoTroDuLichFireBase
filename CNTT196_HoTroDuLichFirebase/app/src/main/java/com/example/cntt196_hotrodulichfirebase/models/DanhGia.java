@@ -1,5 +1,7 @@
 package com.example.cntt196_hotrodulichfirebase.models;
 
+import android.view.LayoutInflater;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -7,8 +9,17 @@ public class DanhGia implements Serializable {
     private String maNguoiDanhGia;
     private LocalDateTime ngayDang;
     private String noiDung;
-    private float rate;
+    private long rate;
     private String tenNguoiDanhGia;
+    private String imgNguoiDang;
+
+    public String getImgNguoiDang() {
+        return imgNguoiDang;
+    }
+
+    public void setImgNguoiDang(String imgNguoiDang) {
+        this.imgNguoiDang = imgNguoiDang;
+    }
 
     public String getMaNguoiDanhGia() {
         return maNguoiDanhGia;
@@ -34,11 +45,11 @@ public class DanhGia implements Serializable {
         this.noiDung = noiDung;
     }
 
-    public float getRate() {
+    public long getRate() {
         return rate;
     }
 
-    public void setRate(float rate) {
+    public void setRate(long rate) {
         this.rate = rate;
     }
 
@@ -51,11 +62,13 @@ public class DanhGia implements Serializable {
     }
 
     public DanhGia(){}
-    public DanhGia(String maNguoiDanhGia, LocalDateTime ngayDang, String noiDung, float rate, String tenNguoiDanhGia) {
+    public DanhGia(String maNguoiDanhGia, LocalDateTime ngayDang, String noiDung, long rate, String tenNguoiDanhGia,
+    String imgNguoiDang) {
         this.maNguoiDanhGia = maNguoiDanhGia;
         this.ngayDang = ngayDang;
         this.noiDung = noiDung;
         this.rate = rate;
         this.tenNguoiDanhGia = tenNguoiDanhGia;
+        this.imgNguoiDang=imgNguoiDang;
     }
 }

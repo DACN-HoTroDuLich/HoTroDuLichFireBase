@@ -17,10 +17,14 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.cntt196_hotrodulichfirebase.FirebaseService.StorageService;
 import com.example.cntt196_hotrodulichfirebase.adapters.AdapterTravel;
 import com.example.cntt196_hotrodulichfirebase.adapters.AdapterTravelHome;
+import com.example.cntt196_hotrodulichfirebase.models.NguoiDang;
+import com.example.cntt196_hotrodulichfirebase.models.Travel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -28,7 +32,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -55,11 +61,11 @@ public class FragmentHome extends Fragment {
 
 
 
-    private QuerySnapshot queryDocumentSnapshots;
-    private ArrayList<DocumentSnapshot> documentSnapshots;
+
 
     private Context context;
     private AdapterTravelHome adapterTravelHome;
+    private ArrayList<Travel> travelArrayList;
     public FragmentHome() {
         // Required empty public constructor
     }
@@ -98,60 +104,42 @@ public class FragmentHome extends Fragment {
         context=requireContext();
         mView=inflater.inflate(R.layout.fragment_home, container, false);
         Init(mView);
+        LoadListSlider();
+        travelArrayList=new ArrayList<>();
+        adapterTravelHome=new AdapterTravelHome(travelArrayList,context);
+        recyclerview_travel_frgHome.setAdapter(adapterTravelHome);
+        recyclerview_travel_frgHome.setLayoutManager(new LinearLayoutManager(context
+                , LinearLayoutManager.HORIZONTAL, false));
+
+        recyclerview_hotel_frgHome.setAdapter(adapterTravelHome);
+        recyclerview_hotel_frgHome.setLayoutManager(new LinearLayoutManager(context
+                , LinearLayoutManager.HORIZONTAL, false));
+
         LoadListTravel();
         return mView;
     }
 
-    private void LoadListTravel() {
+    private void LoadListSlider() {
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
         String[] slideIntros= {"dulich1.jpg","dulich2.jpg","dulich3.jpg","dulich4.jpg","dulich5.jpg"};
         ArrayList<String> slideIntrosLink=new ArrayList<>();
-        for(int i=0;i<slideIntros.length;i++)
-        {
-            storageRef.child("SlideIntro/"+slideIntros[i]).getDownloadUrl()
-                    .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            slideIntrosLink.add(uri.toString());
-                            Log.e("URL_Slide","=>"+uri);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
 
-                        }
-                    });
-        }
-        if(slideIntrosLink.size()>0)
-        {
-            Picasso picassoSlideIntro=Picasso.with(context);
-            picassoSlideIntro.load(slideIntrosLink.get(0)).resize(1280,720)
-                    .placeholder(R.drawable.default_image_empty)
-                    .into(img1_Flipper_frgHome);
-            picassoSlideIntro.invalidate(slideIntrosLink.get(0));
+        String rootFile1= "SlideIntro/"+ slideIntros[0];
+        StorageService.LoadImageUri(rootFile1,img1_Flipper_frgHome,context,1280,570);
 
-            picassoSlideIntro.load(slideIntrosLink.get(1)).resize(1280,720)
-                    .placeholder(R.drawable.default_image_empty)
-                    .into(img2_Flipper_frgHome);
-            picassoSlideIntro.invalidate(slideIntrosLink.get(1));
+        String rootFile2= "SlideIntro/"+ slideIntros[1];
+        StorageService.LoadImageUri(rootFile2,img2_Flipper_frgHome,context,1280,570);
 
-            picassoSlideIntro.load(slideIntrosLink.get(2)).resize(1280,720)
-                    .placeholder(R.drawable.default_image_empty)
-                    .into(img3_Flipper_frgHome);
-            picassoSlideIntro.invalidate(slideIntrosLink.get(2));
+        String rootFile3= "SlideIntro/"+ slideIntros[2];
+        StorageService.LoadImageUri(rootFile3,img3_Flipper_frgHome,context,1280,570);
 
-            picassoSlideIntro.load(slideIntrosLink.get(3)).resize(1280,720)
-                    .placeholder(R.drawable.default_image_empty)
-                    .into(img4_Flipper_frgHome);
-            picassoSlideIntro.invalidate(slideIntrosLink.get(3));
+        String rootFile4= "SlideIntro/"+ slideIntros[3];
+        StorageService.LoadImageUri(rootFile4,img4_Flipper_frgHome,context,1280,570);
 
-            picassoSlideIntro.load(slideIntrosLink.get(4)).resize(1280,720)
-                    .placeholder(R.drawable.default_image_empty)
-                    .into(img5_Flipper_frgHome);
-            picassoSlideIntro.invalidate(slideIntrosLink.get(4));
+        String rootFile5= "SlideIntro/"+ slideIntros[4];
+        StorageService.LoadImageUri(rootFile5,img5_Flipper_frgHome,context,1280,570);
 
-        }
         viewFlipper.setAutoStart(true);
         btn_Previous_frgHome.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -175,22 +163,56 @@ public class FragmentHome extends Fragment {
                 viewFlipper.showNext();
             }
         });
-
-
-        FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+    }
+    private void LoadListTravel()
+    {
+        FirebaseFirestore firebaseFirestore= FirebaseFirestore.getInstance();
         firebaseFirestore.collection("Travel").get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        if (queryDocumentSnapshots != null) {
-                            adapterTravelHome = new AdapterTravelHome(queryDocumentSnapshots, context);
-                            recyclerview_travel_frgHome.setAdapter(adapterTravelHome);
-                            recyclerview_travel_frgHome.setLayoutManager(new LinearLayoutManager(context
-                                    , LinearLayoutManager.HORIZONTAL, false));
+                        if(queryDocumentSnapshots != null)
+                        {
+                            for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments())
+                            {
+                                FirebaseStorage storage = FirebaseStorage.getInstance();
+                                StorageReference storageRef = storage.getReference();
 
-                            recyclerview_hotel_frgHome.setAdapter(adapterTravelHome);
-                            recyclerview_hotel_frgHome.setLayoutManager(new LinearLayoutManager(context
-                                    , LinearLayoutManager.HORIZONTAL, false));
+                                Travel travel=new Travel();
+                                travel.setID_Document(document.getId());
+                                Map<String,Object> subDocument=(Map<String,Object>) document.get("NguoiDang");
+                                Log.d("TravelNguoiDang"," => " +  subDocument);
+                                if(subDocument!=null)
+                                {
+                                    NguoiDang nguoiDang=new NguoiDang();
+                                    nguoiDang.setMaNguoiDang((String)subDocument.get("MaNguoiDang"));
+                                    nguoiDang.setTenNguoiDang((String)subDocument.get("TenNguoiDang"));
+                                    nguoiDang.setAnhDaiDien((String)subDocument.get("AnhDaiDien"));
+                                    travel.setNguoiDang(nguoiDang);
+                                }
+                                travel.setTieuDe(document.getString("TieuDe"));
+                                travel.setMoTa(document.getString("MoTa"));
+                                travel.setDanhGias(null);
+                                travel.setDiaChi(document.getString("DiaChi"));
+                                travel.setGiaMax(document.getDouble("GiaMax"));
+                                travel.setGiaMin(document.getDouble("GiaMin"));
+
+                                ArrayList<String> dsHinh=new ArrayList<>();
+                                dsHinh= (ArrayList<String>) document.get("HinhAnh");
+                                travel.setHinhAnhs(dsHinh);
+
+
+                                Timestamp timestamp=document.getTimestamp("NgayDang");
+
+                                travel.setNgayDang(timestamp.toDate().toInstant()
+                                        .atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+                                for(int i=0;i<15;i++)
+                                {
+                                    travelArrayList.add(travel);
+                                }
+                                adapterTravelHome.notifyDataSetChanged();
+                            }
                         }
 
                     }

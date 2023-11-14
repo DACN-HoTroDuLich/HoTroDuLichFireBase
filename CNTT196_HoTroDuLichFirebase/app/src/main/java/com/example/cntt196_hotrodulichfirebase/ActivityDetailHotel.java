@@ -4,36 +4,58 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.cntt196_hotrodulichfirebase.FirebaseService.StorageService;
+import com.example.cntt196_hotrodulichfirebase.adapters.AdapterNhanXet;
 import com.example.cntt196_hotrodulichfirebase.adapters.AdapterPhong;
 import com.example.cntt196_hotrodulichfirebase.adapters.Adapter_listview_images_ver1;
 import com.example.cntt196_hotrodulichfirebase.adapters.DateTimeToString;
 import com.example.cntt196_hotrodulichfirebase.models.DanhGia;
 import com.example.cntt196_hotrodulichfirebase.models.Hotel;
 import com.example.cntt196_hotrodulichfirebase.models.Travel;
+import com.example.cntt196_hotrodulichfirebase.models.User_;
 import com.squareup.picasso.Picasso;
 
 public class ActivityDetailHotel extends AppCompatActivity {
 
     private TextView tvTenNguoiDung_detail_hotel, tvNgayDang_detail_hotel, tvTieuDe_detail_hotel, tvMoTa_detail_hotel
-            , tvDiaChi_detail_hotel, tvCountFavorite_detail_hotel;
+            , tvDiaChi_detail_hotel, tvCountFavorite_detail_hotel, tvCountDanhGia_detail_hotel;
     private ImageView imgNguoiDung_detail_hotel, imgHinhAnhBaiDang_detail_hotel;
-    private RatingBar ratingBar_detail_hotel;
+    private RatingBar ratingBar_detail_hotel,AvargarateRatingBar_detail_hotel;
     private ImageButton btnFavorite_detail_hotel, btnBack_hotel;
     private RecyclerView recylistHinhAnh_detail_hotel;
-    private RecyclerView lvPhong_detail_hotel;
-
+    private RecyclerView lvPhong_detail_hotel, lvHoiDap_detail_hotel,lvDanhGia_detail_hotel;
+    private Button btnThemNhanXet_detail_hotel, btnXemTatCa_detail_hotel;
     private Hotel hotel;
+
+    private User_ USER_HOTEL_DETAIL;
     private void Init()
     {
+        btnXemTatCa_detail_hotel=findViewById(R.id.btnXemTatCa_detail_hotel);
+        btnThemNhanXet_detail_hotel=findViewById(R.id.btnThemNhanXet_detail_hotel);
         tvTieuDe_detail_hotel=findViewById(R.id.tvTieuDe_detail_hotel);
+        tvCountDanhGia_detail_hotel=findViewById(R.id.tvCountDanhGia_detail_hotel);
 
         tvTenNguoiDung_detail_hotel= findViewById(R.id.tvTenNguoiDung_detail_hotel);
         tvNgayDang_detail_hotel= findViewById(R.id.tvNgayDang_detail_hotel);
@@ -43,11 +65,13 @@ public class ActivityDetailHotel extends AppCompatActivity {
         tvCountFavorite_detail_hotel= findViewById(R.id.tvCountFavorite_detail_hotel);
         imgNguoiDung_detail_hotel= findViewById(R.id.imgNguoiDung_detail_hotel);
         imgHinhAnhBaiDang_detail_hotel= findViewById(R.id.imgHinhAnhBaiDang_detail_hotel);
-        ratingBar_detail_hotel= findViewById(R.id.ratingBar_detail_hotel);
+        AvargarateRatingBar_detail_hotel=findViewById(R.id.AvargarateRatingBar_detail_hotel);
         btnFavorite_detail_hotel= findViewById(R.id.btnFavorite_detail_hotel);
         btnBack_hotel=findViewById(R.id.btnBack_detail_hotel);
         recylistHinhAnh_detail_hotel=findViewById(R.id.recylistHinhAnh_detail_hotel);
         lvPhong_detail_hotel=findViewById(R.id.lvPhong_detail_hotel);
+        lvDanhGia_detail_hotel=findViewById(R.id.lvDanhGia_detail_hotel);
+        lvHoiDap_detail_hotel=findViewById(R.id.lvHoiDap_detail_hotel);
     }
 
     @Override
@@ -56,7 +80,7 @@ public class ActivityDetailHotel extends AppCompatActivity {
         setContentView(R.layout.activity_detail_hotel);
 
         Init();
-
+        USER_HOTEL_DETAIL=MainActivity.USER_;
         Intent intent= getIntent();
         Bundle bundle=intent.getExtras();
         if(bundle!=null)
@@ -68,17 +92,82 @@ public class ActivityDetailHotel extends AppCompatActivity {
         {
             finish();
         }
+        btnBack_hotel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        btnXemTatCa_detail_hotel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        btnThemNhanXet_detail_hotel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(USER_HOTEL_DETAIL!=null)
+                {
+                    LoadDialogThemNhanXet();
+                }
+                else {
+                    AlertDialog.Builder builder=new AlertDialog.Builder(ActivityDetailHotel.this);
+                    builder.setMessage("Cần đăng nhập để kích hoạt tính năng này");
+                }
+            }
+        });
     }
 
+    private void LoadDialogThemNhanXet()
+    {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_layout_add_danh_gia_ver1);
+        dialog.setCancelable(false);
+
+        ImageView imgNguoiDang_dialog_add_danhgia ;
+        Button btnCancel_detail_hotel , btnNhanXet_detail_hotel;
+        RatingBar ratingBar_dialog_add_danhgia;
+        EditText edtDanhGia_dialog_add_danhgia;
+        TextView tvTenNguoiDang_dialog_add_danhgia;
+        imgNguoiDang_dialog_add_danhgia = dialog.findViewById(R.id.imgNguoiDang_dialog_add_danhgia);
+        btnCancel_detail_hotel = dialog.findViewById(R.id.btnCancel_detail_hotel);
+        btnNhanXet_detail_hotel = dialog.findViewById(R.id.btnNhanXet_detail_hotel);
+        ratingBar_dialog_add_danhgia = dialog.findViewById(R.id.ratingBar_dialog_add_danhgia);
+        edtDanhGia_dialog_add_danhgia = dialog.findViewById(R.id.edtDanhGia_dialog_add_danhgia);
+        tvTenNguoiDang_dialog_add_danhgia=dialog.findViewById(R.id.tvTenNguoiDang_dialog_add_danhgia);
+
+        Picasso picassoHotelDetail= Picasso.with(ActivityDetailHotel.this);
+        picassoHotelDetail.load(USER_HOTEL_DETAIL.getAvarta()).resize(90, 90)
+                .placeholder(R.drawable.icon2)
+                .into(imgNguoiDang_dialog_add_danhgia);
+        picassoHotelDetail.invalidate(USER_HOTEL_DETAIL.getAvarta());
+
+        tvTenNguoiDang_dialog_add_danhgia.setText(USER_HOTEL_DETAIL.getFullName());
+        dialog.show();
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.getWindow().setGravity(Gravity.CENTER);
+
+        btnCancel_detail_hotel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               //dialog.setCancelable(true);
+                dialog.cancel();
+            }
+        });
+
+
+    }
     private void SetValueToControl()
     {
         if(hotel.getNguoiDang()!=null)
         {
-            Picasso picasso=Picasso.with(this);
-            picasso.load(hotel.getNguoiDang().getAnhDaiDien()).resize(90,90)
-                    .placeholder(R.drawable.icon2)
-                    .into(imgNguoiDung_detail_hotel);
-            picasso.invalidate(hotel.getNguoiDang().getAnhDaiDien());
+            String filePath="avarta/" + hotel.getNguoiDang().getAnhDaiDien();
+            StorageService.LoadImageUri_Avarta(filePath,imgNguoiDung_detail_hotel,this);
 
             tvTenNguoiDung_detail_hotel.setText(hotel.getNguoiDang().getTenNguoiDang());
             tvNgayDang_detail_hotel.setText(DateTimeToString.Format(hotel.getNgayDang()));
@@ -109,22 +198,19 @@ public class ActivityDetailHotel extends AppCompatActivity {
                     rate += danhGia.getRate();
                 }
                 rate = rate / hotel.getDanhGias().size();
-                ratingBar_detail_hotel.setRating(rate);
+                AvargarateRatingBar_detail_hotel.setRating(rate);
+                tvCountDanhGia_detail_hotel.setText(rate+"\n"+"Đánh giá "+"("+hotel.getDanhGias().size()+")");
             }
 
             if(hotel.getHinhAnhs()!=null)
             {
                 if(hotel.getHinhAnhs().size()>0)
                 {
-                    Picasso picassoH1=Picasso.with(this);
-                    picassoH1.load(hotel.getHinhAnhs().get(0)).resize(1280  ,720)
-                            .placeholder(R.drawable.default_image_empty)
-                            .into(imgHinhAnhBaiDang_detail_hotel);
-                    picassoH1.invalidate(hotel.getHinhAnhs().get(0));
-
+                    String rootFile= "Hotel/"+ hotel.getID_Document()+"/"+hotel.getHinhAnhs().get(0);
+                    StorageService.LoadImageUri(rootFile,imgHinhAnhBaiDang_detail_hotel,this,1280,750);
 
                     Adapter_listview_images_ver1 adapter_listview_images_ver1=new
-                            Adapter_listview_images_ver1(hotel.getHinhAnhs(),ActivityDetailHotel.this);
+                            Adapter_listview_images_ver1(hotel.getHinhAnhs(),ActivityDetailHotel.this, hotel.getID_Document(),false);
                     recylistHinhAnh_detail_hotel.setAdapter(adapter_listview_images_ver1);
                     recylistHinhAnh_detail_hotel.setLayoutManager(new LinearLayoutManager(ActivityDetailHotel.this
                             , LinearLayoutManager.HORIZONTAL, false));
@@ -132,10 +218,27 @@ public class ActivityDetailHotel extends AppCompatActivity {
             }
             if(hotel.getPhongs()!=null)
             {
-                AdapterPhong adapterPhong=new AdapterPhong(hotel.getPhongs(),ActivityDetailHotel.this);
+                AdapterPhong adapterPhong=new AdapterPhong(hotel.getPhongs(),ActivityDetailHotel.this, hotel.getID_Document());
                 lvPhong_detail_hotel.setAdapter(adapterPhong);
                 lvPhong_detail_hotel.setLayoutManager(new LinearLayoutManager(ActivityDetailHotel.this
                         , LinearLayoutManager.HORIZONTAL, false));
+            }
+            if(hotel.getDanhGias()!=null)
+            {
+                float rating=0;
+                for (DanhGia danhGia:hotel.getDanhGias())
+                {
+                    rating+=danhGia.getRate();
+                }
+                rating=rating/hotel.getDanhGias().size();
+                AvargarateRatingBar_detail_hotel.setRating(rating);
+                AvargarateRatingBar_detail_hotel.setIsIndicator(true);
+
+                AdapterNhanXet adapterNhanXet=new AdapterNhanXet(ActivityDetailHotel.this
+                        ,hotel.getDanhGias(),hotel.getID_Document());
+                lvDanhGia_detail_hotel.setAdapter(adapterNhanXet);
+                lvDanhGia_detail_hotel.setLayoutManager(new LinearLayoutManager(ActivityDetailHotel.this
+                        , LinearLayoutManager.VERTICAL, false));
             }
         }
 

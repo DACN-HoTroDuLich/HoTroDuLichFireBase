@@ -7,6 +7,7 @@ public class TraLoi implements Serializable {
     private String maCauTraLoi;
     private String maNguoiTraLoi;
     private String tenNguoiTraLoi;
+    private String imgNguoiTraLoi;
     private String noiDungTraLoi;
     private LocalDateTime ngayTraLoi;
 
@@ -28,6 +29,14 @@ public class TraLoi implements Serializable {
 
     public LocalDateTime getNgayTraLoi() {
         return ngayTraLoi;
+    }
+
+    public String getImgNguoiTraLoi() {
+        return imgNguoiTraLoi;
+    }
+
+    public void setImgNguoiTraLoi(String imgNguoiTraLoi) {
+        this.imgNguoiTraLoi = imgNguoiTraLoi;
     }
 
     public void setMaCauTraLoi(String maCauTraLoi) {
@@ -55,11 +64,12 @@ public class TraLoi implements Serializable {
     }
 
     public TraLoi(String maCauTraLoi, String maNguoiTraLoi, String tenNguoiTraLoi,
-                  String noiDungTraLoi, LocalDateTime ngayTraLoi) {
+                  String noiDungTraLoi, LocalDateTime ngayTraLoi, String imgNguoiTraLoi) {
         this.maCauTraLoi = maCauTraLoi;
         this.maNguoiTraLoi = maNguoiTraLoi;
         this.tenNguoiTraLoi = tenNguoiTraLoi;
         this.noiDungTraLoi = noiDungTraLoi;
         this.ngayTraLoi = ngayTraLoi;
+        this.imgNguoiTraLoi=imgNguoiTraLoi;
     }
 }

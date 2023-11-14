@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.cntt196_hotrodulichfirebase.FirebaseService.StorageService;
 import com.example.cntt196_hotrodulichfirebase.R;
 import com.example.cntt196_hotrodulichfirebase.models.Hotel;
 import com.example.cntt196_hotrodulichfirebase.models.Phong;
@@ -26,11 +27,13 @@ public class AdapterPhong extends RecyclerView.Adapter<AdapterPhong.ViewHolder> 
     private Context context;
     private LayoutInflater inflater;
     private View mView;
+    private String Id_Document;
 
-    public AdapterPhong(ArrayList<Phong> arrayListPhong,Context context)
+    public AdapterPhong(ArrayList<Phong> arrayListPhong,Context context, String Id_document)
     {
         this.context=context;
         this.arrayListPhong=arrayListPhong;
+        this.Id_Document=Id_document;
         this.inflater= LayoutInflater.from(context);
     }
 
@@ -48,11 +51,8 @@ public class AdapterPhong extends RecyclerView.Adapter<AdapterPhong.ViewHolder> 
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Phong phong=arrayListPhong.get(position);
         if (phong.getHinhAnh() != null) {
-            Picasso picasso = Picasso.with(context);
-            picasso.load(phong.getHinhAnh()).resize(1280, 780)
-                    .placeholder(R.drawable.dulich5)
-                    .into(holder.imagePhong_custom_phong);
-            picasso.invalidate(phong.getHinhAnh());
+            String rootFile= "Hotel/"+ Id_Document+"/"+phong.getHinhAnh();
+            StorageService.LoadImageUri(rootFile,holder.imagePhong_custom_phong,context,1280,750);
 
             holder.tvSoGiuong_custom_phong.setText("Phòng "+phong.getSoGiuong()+" giường");
             if(phong.getGiaMax()==0)
@@ -61,7 +61,8 @@ public class AdapterPhong extends RecyclerView.Adapter<AdapterPhong.ViewHolder> 
             }
             else
             {
-                holder.tvGia_hotel_custom.setText("Giá phòng từ "+phong.getGiaMin()+" đến"+phong.getGiaMax());
+                holder.tvGia_hotel_custom.setText("Giá phòng từ "+DateTimeToString.FormatVND(phong.getGiaMin())+" đến "
+                        +DateTimeToString.FormatVND(phong.getGiaMax()));
             }
         }
     }
@@ -71,21 +72,6 @@ public class AdapterPhong extends RecyclerView.Adapter<AdapterPhong.ViewHolder> 
         return arrayListPhong.size();
     }
 
-    //    @Override
-//    public int getCount() {
-//        return arrayListPhong.size();
-//    }
-//
-//    @Override
-//    public Object getItem(int position) {
-//        return arrayListPhong.get(position);
-//    }
-//
-//    @Override
-//    public long getItemId(int position) {
-//        return position;
-//    }
-//
     public class ViewHolder extends RecyclerView.ViewHolder
     {
         ImageView imagePhong_custom_phong;
@@ -98,65 +84,4 @@ public class AdapterPhong extends RecyclerView.Adapter<AdapterPhong.ViewHolder> 
             tvSoGiuong_custom_phong=itemView.findViewById(R.id.tvSoGiuong_custom_phong);
         }
     }
-//    @Override
-//    public View getView(int position, View convertView, ViewGroup parent) {
-//        AdapterPhong.ViewHolder viewHolder=null;
-//        if(convertView==null)
-//        {
-//            viewHolder = new AdapterPhong.ViewHolder();
-//            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//            convertView = inflater.inflate(R.layout.custom_listview_item_phong_ver1, null);
-//
-//            viewHolder.imagePhong_custom_phong=convertView.findViewById(R.id.imagePhong_custom_phong);
-//            viewHolder.tvGia_hotel_custom=convertView.findViewById(R.id.tvGia_hotel_custom);
-//            viewHolder.tvSoGiuong_custom_phong=convertView.findViewById(R.id.tvSoGiuong_custom_phong);
-//
-//            convertView.setTag(viewHolder);
-//
-//            viewHolder = (AdapterPhong.ViewHolder) convertView.getTag();
-//            Phong phong=(Phong)getItem(position);
-//
-//            if (phong.getHinhAnh() != null) {
-//                Picasso picasso = Picasso.with(context);
-//                picasso.load(phong.getHinhAnh()).resize(1280, 750)
-//                        .placeholder(R.drawable.icon2)
-//                        .into(viewHolder.imagePhong_custom_phong);
-//                picasso.invalidate(phong.getHinhAnh());
-//
-//                viewHolder.tvSoGiuong_custom_phong.setText("Phòng "+phong.getSoGiuong()+" giường");
-//                if(phong.getGiaMax()==0)
-//                {
-//                    viewHolder.tvGia_hotel_custom.setText("Giá phòng không xác định");
-//                }
-//                else
-//                {
-//                    viewHolder.tvGia_hotel_custom.setText("Giá phòng từ "+phong.getGiaMin()+" đến"+phong.getGiaMax());
-//                }
-//            }
-//        }
-//        else
-//        {
-//            viewHolder = (AdapterPhong.ViewHolder) convertView.getTag();
-//            Phong phong=(Phong)getItem(position);
-//
-//            if (phong.getHinhAnh() != null) {
-//                Picasso picasso = Picasso.with(context);
-//                picasso.load(phong.getHinhAnh()).resize(1280, 750)
-//                        .placeholder(R.drawable.icon2)
-//                        .into(viewHolder.imagePhong_custom_phong);
-//                picasso.invalidate(phong.getHinhAnh());
-//
-//                viewHolder.tvSoGiuong_custom_phong.setText("Phòng "+phong.getSoGiuong()+" giường");
-//                if(phong.getGiaMax()==0)
-//                {
-//                    viewHolder.tvGia_hotel_custom.setText("Giá phòng không xác định");
-//                }
-//                else
-//                {
-//                    viewHolder.tvGia_hotel_custom.setText("Giá phòng từ "+phong.getGiaMin()+" đến"+phong.getGiaMax());
-//                }
-//            }
-//        }
-//        return convertView;
-//    }
 }

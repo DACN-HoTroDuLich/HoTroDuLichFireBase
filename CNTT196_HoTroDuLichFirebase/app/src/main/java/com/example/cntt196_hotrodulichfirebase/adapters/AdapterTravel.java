@@ -20,6 +20,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.example.cntt196_hotrodulichfirebase.ActivityDetailTravel;
+import com.example.cntt196_hotrodulichfirebase.FirebaseService.StorageService;
 import com.example.cntt196_hotrodulichfirebase.R;
 import com.example.cntt196_hotrodulichfirebase.models.HinhAnh;
 import com.example.cntt196_hotrodulichfirebase.models.NguoiDang;
@@ -41,100 +42,14 @@ import java.util.Map;
 
 public class AdapterTravel extends BaseAdapter {
     private ArrayList<Travel> arrayListTravel;
-    private QuerySnapshot queryDocumentSnapshots;
     private Context context;
     private AdapterView.OnItemClickListener mListener;
 
 
 
-    public AdapterTravel(QuerySnapshot queryDocumentSnapshots, Context context) {
-        this.queryDocumentSnapshots = queryDocumentSnapshots;
+    public AdapterTravel(ArrayList<Travel> arrayListTravel, Context context) {
+        this.arrayListTravel = arrayListTravel;
         this.context = context;
-        this.arrayListTravel = new ArrayList<>();
-
-
-        if (this.queryDocumentSnapshots != null)
-        {
-            for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments())
-            {
-                FirebaseStorage storage = FirebaseStorage.getInstance();
-                StorageReference storageRef = storage.getReference();
-
-                Travel travel=new Travel();
-                travel.setID_Document(document.getId());
-                Map<String,Object> subDocument=(Map<String,Object>) document.get("NguoiDang");
-                Log.d("TravelNguoiDang"," => " +  subDocument);
-                if(subDocument!=null)
-                {
-                    NguoiDang nguoiDang=new NguoiDang();
-                    nguoiDang.setMaNguoiDang((String)subDocument.get("MaNguoiDang"));
-                    nguoiDang.setTenNguoiDang((String)subDocument.get("TenNguoiDang"));
-                    nguoiDang.setAnhDaiDien((String)subDocument.get("AnhDaiDien"));
-
-                    //StorageReference pathReference = storageRef.child("avarta/"+(String)subDocument.get("AnhDaiDien"));
-                    storageRef.child("avarta/"+(String)subDocument.get("AnhDaiDien")).getDownloadUrl()
-                            .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    nguoiDang.setAnhDaiDien(uri.toString());
-                                    Toast.makeText(context, "=>"+uri, Toast.LENGTH_SHORT).show();
-                                    Log.e("URL_avarta","=>"+uri);
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-
-                                }
-                            });
-
-
-                    travel.setNguoiDang(nguoiDang);
-                }
-                travel.setTieuDe(document.getString("TieuDe"));
-                travel.setMoTa(document.getString("MoTa"));
-                travel.setDanhGias(null);
-                travel.setDiaChi(document.getString("DiaChi"));
-                travel.setGiaMax(document.getDouble("GiaMax"));
-                travel.setGiaMin(document.getDouble("GiaMin"));
-                //travel.setHinhAnhs((ArrayList<String>) document.get("HinhAnh"));
-
-                ArrayList<String> dsHinh=new ArrayList<>();
-                for (String strHinhAnh:(ArrayList<String>) document.get("HinhAnh"))
-                {
-                    String rootFile= "Travel/"+ document.getId()+"/";
-                    storageRef.child(rootFile + strHinhAnh).getDownloadUrl()
-                            .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    dsHinh.add(uri.toString());
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-
-                                }
-                            });
-                }
-                travel.setHinhAnhs(dsHinh);
-
-
-
-                Timestamp timestamp=document.getTimestamp("NgayDang");
-
-                travel.setNgayDang(timestamp.toDate().toInstant()
-                        .atZone(ZoneId.systemDefault()).toLocalDateTime());
-
-                for(int i=0;i<15;i++)
-                {
-                    arrayListTravel.add(travel);
-                    arrayListTravel.add(travel);
-                    arrayListTravel.add(travel);
-                    arrayListTravel.add(travel);
-                    arrayListTravel.add(travel);
-                    arrayListTravel.add(travel);
-                }
-            }
-        }
     }
 
     @Override
@@ -189,12 +104,8 @@ public class AdapterTravel extends BaseAdapter {
             Travel travel= (Travel) getItem(i);
             if(travel.getNguoiDang()!=null)
             {
-                Log.e("Travel_Avarta","=>"+travel.getNguoiDang().getAnhDaiDien());
-                Picasso picasso=Picasso.with(context);
-                picasso.load(travel.getNguoiDang().getAnhDaiDien()).resize(90,90)
-                        .placeholder(R.drawable.icon2)
-                        .into(viewHolder.imgNguoiDung_custom);
-                picasso.invalidate(travel.getNguoiDang().getAnhDaiDien());
+                String filePath="avarta/" + travel.getNguoiDang().getAnhDaiDien();
+                StorageService.LoadImageUri_Avarta(filePath,viewHolder.imgNguoiDung_custom,context);
 
                 viewHolder.tvTenNguoiDung.setText(travel.getNguoiDang().getTenNguoiDang());
                 Log.e("Travel_TenNguoiDung","=>"+travel.getNguoiDang().getTenNguoiDang());
@@ -207,7 +118,7 @@ public class AdapterTravel extends BaseAdapter {
                 { viewHolder.tvGia.setText("Miễn phí vé tham quan");}
                 else
                 { viewHolder.tvGia.setText("Giá tham khảo chỉ từ "
-                        +String.valueOf( travel.getGiaMin()) +" đến "+String.valueOf(travel.getGiaMax()));}
+                        + DateTimeToString.FormatVND(travel.getGiaMin()) +" đến "+DateTimeToString.FormatVND(travel.getGiaMax()));}
                 if(travel.getLuotThichs()!=null)
                 {
                     if(travel.getLuotThichs().size()>0)
@@ -229,12 +140,8 @@ public class AdapterTravel extends BaseAdapter {
                 {
                     if(travel.getHinhAnhs().size()>0)
                     {
-                        Log.e("Travel_AnhBia","=>"+travel.getHinhAnhs().get(0));
-                        Picasso picassoH1=Picasso.with(context);
-                        picassoH1.load(travel.getHinhAnhs().get(0)).resize(1280  ,720)
-                                .placeholder(R.drawable.default_image_empty)
-                                .into(viewHolder.imgHinhAnhBaiDang_custom);
-                        picassoH1.invalidate(travel.getHinhAnhs().get(0));
+                        String rootFile= "Travel/"+ travel.getID_Document()+"/"+travel.getHinhAnhs().get(0);
+                        StorageService.LoadImageUri(rootFile,viewHolder.imgHinhAnhBaiDang_custom,context,1280,750);
                     }
                 }
             }
@@ -283,11 +190,8 @@ public class AdapterTravel extends BaseAdapter {
             if(travel.getNguoiDang()!=null)
             {
                 Log.e("Travel_Avarta","=>"+travel.getNguoiDang().getAnhDaiDien());
-                Picasso picasso=Picasso.with(context);
-                picasso.load(travel.getNguoiDang().getAnhDaiDien()).resize(90,90)
-                        .placeholder(R.drawable.icon2)
-                        .into(viewHolder.imgNguoiDung_custom);
-                picasso.invalidate(travel.getNguoiDang().getAnhDaiDien());
+                String filePath="avarta/" + travel.getNguoiDang().getAnhDaiDien();
+                StorageService.LoadImageUri_Avarta(filePath,viewHolder.imgNguoiDung_custom,context);
 
                 viewHolder.tvTenNguoiDung.setText(travel.getNguoiDang().getTenNguoiDang());
                 viewHolder.tvNgayDang.setText(DateTimeToString.Format(travel.getNgayDang()));
@@ -322,11 +226,8 @@ public class AdapterTravel extends BaseAdapter {
                     if(travel.getHinhAnhs().size()>0)
                     {
                         Log.e("Travel_AnhBia","=>"+travel.getHinhAnhs().get(0));
-                        Picasso picassoH1=Picasso.with(context);
-                        picassoH1.load(travel.getHinhAnhs().get(0)).resize(1280  ,720)
-                                .placeholder(R.drawable.default_image_empty)
-                                .into(viewHolder.imgHinhAnhBaiDang_custom);
-                        picassoH1.invalidate(travel.getHinhAnhs().get(0));
+                        String rootFile= "Travel/"+ travel.getID_Document()+"/"+travel.getHinhAnhs().get(0);
+                        StorageService.LoadImageUri(rootFile,viewHolder.imgHinhAnhBaiDang_custom,context,1280,750);
                     }
                 }
             }

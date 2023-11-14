@@ -23,7 +23,9 @@ import androidx.cardview.widget.CardView;
 
 import com.example.cntt196_hotrodulichfirebase.ActivityDetailHotel;
 import com.example.cntt196_hotrodulichfirebase.ActivityDetailTravel;
+import com.example.cntt196_hotrodulichfirebase.FirebaseService.StorageService;
 import com.example.cntt196_hotrodulichfirebase.R;
+import com.example.cntt196_hotrodulichfirebase.models.DanhGia;
 import com.example.cntt196_hotrodulichfirebase.models.Hotel;
 import com.example.cntt196_hotrodulichfirebase.models.NguoiDang;
 import com.example.cntt196_hotrodulichfirebase.models.Phong;
@@ -37,131 +39,21 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Map;
 
 public class AdapterHotel extends BaseAdapter {
     private ArrayList<Hotel> arrayListHotel;
-    private QuerySnapshot queryDocumentSnapshots;
     private Context context;
     private AdapterView.OnItemClickListener mListener;
 
-    public AdapterHotel(QuerySnapshot queryDocumentSnapshots, Context context) {
-        this.queryDocumentSnapshots = queryDocumentSnapshots;
+    // public AdapterHotel(QuerySnapshot queryDocumentSnapshots, Context context)
+    public AdapterHotel(ArrayList<Hotel> arrayListHotel, Context context) {
         this.context = context;
-        this.arrayListHotel = new ArrayList<>();
+        this.arrayListHotel = arrayListHotel;
 
-
-        if (this.queryDocumentSnapshots != null)
-        {
-            for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments())
-            {
-                FirebaseStorage storage = FirebaseStorage.getInstance();
-                StorageReference storageRef = storage.getReference();
-
-                Hotel hotel=new Hotel();
-                hotel.setID_Document(document.getId());
-                Map<String,Object> subDocument=(Map<String,Object>) document.get("NguoiDang");
-                Log.d("HotelNguoiDang"," => " +  subDocument);
-                if(subDocument!=null)
-                {
-                    NguoiDang nguoiDang=new NguoiDang();
-                    nguoiDang.setMaNguoiDang((String)subDocument.get("MaNguoiDang"));
-                    nguoiDang.setTenNguoiDang((String)subDocument.get("TenNguoiDang"));
-                    nguoiDang.setAnhDaiDien((String)subDocument.get("AnhDaiDien"));
-
-                    //StorageReference pathReference = storageRef.child("avarta/"+(String)subDocument.get("AnhDaiDien"));
-                    storageRef.child("avarta/"+(String)subDocument.get("AnhDaiDien")).getDownloadUrl()
-                            .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    nguoiDang.setAnhDaiDien(uri.toString());
-                                    Toast.makeText(context, "=>"+uri, Toast.LENGTH_SHORT).show();
-                                    Log.e("URL_avarta","=>"+uri);
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-
-                                }
-                            });
-
-
-                    hotel.setNguoiDang(nguoiDang);
-                }
-                hotel.setTenKhachSan(document.getString("TenKhachSan"));
-                hotel.setMoTa(document.getString("MoTa"));
-                hotel.setDanhGias(null);
-                hotel.setDiaChi(document.getString("DiaChi"));
-                hotel.setTrangThai(document.getBoolean("TrangThai"));
-                hotel.setHangSao((long)document.get("HangSao"));
-
-                ArrayList<String> dsHinh=new ArrayList<>();
-                for (String strHinhAnh:(ArrayList<String>) document.get("HinhAnh"))
-                {
-                    String rootFile= "Hotel/"+ document.getId()+"/";
-                    storageRef.child(rootFile + strHinhAnh).getDownloadUrl()
-                            .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    dsHinh.add(uri.toString());
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-
-                                }
-                            });
-                }
-                hotel.setHinhAnhs(dsHinh);
-
-                ArrayList<Phong> dsPhong=new ArrayList<>();
-                ArrayList<Map<String,Object>> subArrayDocument= (ArrayList<Map<String, Object>>) document.get("Phong");
-                if(subArrayDocument!=null)
-                {
-                    Log.e("subArrayDocument","=>"+subArrayDocument);
-                    for (Map<String,Object> objectMap:subArrayDocument)
-                    {
-                        Phong phong=new Phong();
-                        phong.setGiaMax((long) objectMap.get("GiaMax"));
-                        phong.setGiaMin((long) objectMap.get("GiaMin"));
-                        phong.setSoGiuong((long) objectMap.get("SoGiuong"));
-                        phong.setHinhAnh((String) objectMap.get("HinhAnh"));
-                        if(phong.getHinhAnh()!=null)
-                        {
-                            String rootFile= "Hotel/"+ document.getId()+"/";
-                            storageRef.child(rootFile + phong.getHinhAnh()).getDownloadUrl()
-                                    .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                        @Override
-                                        public void onSuccess(Uri uri) {
-                                            phong.setHinhAnh(uri.toString());
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-
-                                        }
-                                    });
-                        }
-                        dsPhong.add(phong);
-                    }
-                }
-                hotel.setPhongs(dsPhong);
-
-                Timestamp timestamp=document.getTimestamp("NgayDang");
-
-                hotel.setNgayDang(timestamp.toDate().toInstant()
-                        .atZone(ZoneId.systemDefault()).toLocalDateTime());
-
-                for(int i=0;i<15;i++)
-                {
-                    arrayListHotel.add(hotel);
-                    arrayListHotel.add(hotel);
-                    arrayListHotel.add(hotel);
-                }
-            }
-        }
     }
 
     @Override
@@ -219,14 +111,10 @@ public class AdapterHotel extends BaseAdapter {
 
             viewHolder = (AdapterHotel.ViewHolder) convertView.getTag();
             Hotel hotel = (Hotel) getItem(position);
-            if (hotel.getNguoiDang() != null) {
-                Log.e("Hotel_Avarta", "=>" + hotel.getNguoiDang().getAnhDaiDien());
-
-                Picasso picasso = Picasso.with(context);
-                picasso.load(hotel.getNguoiDang().getAnhDaiDien()).resize(90, 90)
-                        .placeholder(R.drawable.icon2)
-                        .into(viewHolder.imgNguoiDung_hotel_custom);
-                picasso.invalidate(hotel.getNguoiDang().getAnhDaiDien());
+            if (hotel.getNguoiDang() != null)
+            {
+                String filePath="avarta/" + hotel.getNguoiDang().getAnhDaiDien();
+                StorageService.LoadImageUri_Avarta(filePath,viewHolder.imgNguoiDung_hotel_custom,context);
 
                 viewHolder.tvTenNguoiDung_hotel_custom.setText(hotel.getNguoiDang().getTenNguoiDang());
                 Log.e("Hotel_TenNguoiDung", "=>" + hotel.getNguoiDang().getTenNguoiDang());
@@ -251,18 +139,23 @@ public class AdapterHotel extends BaseAdapter {
                     viewHolder.tvCountFavorite_hotel_custom.setText("");
                 }
 
-                String[] DiaChiSplit=hotel.getDiaChi().split(",");
-                viewHolder.tvDiaChi_hotel_custom.setText("Địa chỉ: " + DiaChiSplit[DiaChiSplit.length-2]+", "
-                +DiaChiSplit[DiaChiSplit.length-1]);
+                String[] DiaChiSplit = hotel.getDiaChi().split(",");
+                viewHolder.tvDiaChi_hotel_custom.setText("Địa chỉ: " + DiaChiSplit[DiaChiSplit.length - 2] + ", "
+                        + DiaChiSplit[DiaChiSplit.length - 1]);
                 if (hotel.getHinhAnhs() != null) {
                     if (hotel.getHinhAnhs().size() > 0) {
-                        Log.e("Hotel_AnhBia", "=>" + hotel.getHinhAnhs().get(0));
-                        Picasso picassoH1 = Picasso.with(context);
-                        picassoH1.load(hotel.getHinhAnhs().get(0)).resize(1280, 750)
-                                .placeholder(R.drawable.dulich5)
-                                .into(viewHolder.imgHotel_hotel_custom);
-                        picassoH1.invalidate(hotel.getHinhAnhs().get(0));
+                        ViewHolder finalViewHolder2 = viewHolder;
+                        String rootFile= "Hotel/"+ hotel.getID_Document()+"/"+hotel.getHinhAnhs().get(0);
+                        StorageService.LoadImageUri(rootFile,viewHolder.imgHotel_hotel_custom,context,1280,750);
                     }
+                }
+                if (hotel.getDanhGias() != null) {
+                    float rating = 0;
+                    for (DanhGia danhGia : hotel.getDanhGias()) {
+                        rating += danhGia.getRate();
+                    }
+                    rating = rating / hotel.getDanhGias().size();
+                    viewHolder.ratingBar_hotel_custom.setRating(rating);
                 }
             }
 
@@ -270,10 +163,10 @@ public class AdapterHotel extends BaseAdapter {
             viewHolder.btnXemChiTiet_hotel_custom.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Hotel hotelBundle=(Hotel) getItem(position);
-                    Bundle bundle=new Bundle();
+                    Hotel hotelBundle = (Hotel) getItem(position);
+                    Bundle bundle = new Bundle();
                     bundle.putSerializable("Hotel", hotelBundle);
-                    Intent intent=new Intent(v.getContext(), ActivityDetailHotel.class);
+                    Intent intent = new Intent(v.getContext(), ActivityDetailHotel.class);
                     intent.putExtras(bundle);
                     v.getContext().startActivity(intent);
                 }
@@ -295,20 +188,17 @@ public class AdapterHotel extends BaseAdapter {
                     Log.e("TagBtn", "=>" + v.getTag());
                 }
             });
-            //viewHolder.btnFavorite_custom.setImageResource((int)viewHolder.btnFavorite_custom.getTag());
+        //viewHolder.btnFavorite_custom.setImageResource((int)viewHolder.btnFavorite_custom.getTag());
 
 
         } else {
             viewHolder = (AdapterHotel.ViewHolder) convertView.getTag();
             Hotel hotel = (Hotel) getItem(position);
             if (hotel.getNguoiDang() != null) {
-                Log.e("Hotel_Avarta", "=>" + hotel.getNguoiDang().getAnhDaiDien());
 
-                Picasso picasso = Picasso.with(context);
-                picasso.load(hotel.getNguoiDang().getAnhDaiDien()).resize(90, 90)
-                        .placeholder(R.drawable.icon2)
-                        .into(viewHolder.imgNguoiDung_hotel_custom);
-                picasso.invalidate(hotel.getNguoiDang().getAnhDaiDien());
+                String filePath="avarta/" + hotel.getNguoiDang().getAnhDaiDien();
+                StorageService.LoadImageUri_Avarta(filePath,viewHolder.imgNguoiDung_hotel_custom,context);
+                Log.e("Hotel_Avarta", "=>" + hotel.getNguoiDang().getAnhDaiDien());
 
                 viewHolder.tvTenNguoiDung_hotel_custom.setText(hotel.getNguoiDang().getTenNguoiDang());
                 Log.e("Hotel_TenNguoiDung", "=>" + hotel.getNguoiDang().getTenNguoiDang());
@@ -337,13 +227,20 @@ public class AdapterHotel extends BaseAdapter {
 
                 if (hotel.getHinhAnhs() != null) {
                     if (hotel.getHinhAnhs().size() > 0) {
+                        String rootFile= "Hotel/"+ hotel.getID_Document()+"/"+hotel.getHinhAnhs().get(0);
+                        StorageService.LoadImageUri(rootFile,viewHolder.imgHotel_hotel_custom,context,1280,750);
                         Log.e("Hotel_AnhBia", "=>" + hotel.getHinhAnhs().get(0));
-                        Picasso picassoH1 = Picasso.with(context);
-                        picassoH1.load(hotel.getHinhAnhs().get(0)).resize(1280, 750)
-                                .placeholder(R.drawable.dulich5)
-                                .into(viewHolder.imgHotel_hotel_custom);
-                        picassoH1.invalidate(hotel.getHinhAnhs().get(0));
                     }
+                }
+                if(hotel.getDanhGias()!=null)
+                {
+                    float rating=0;
+                    for (DanhGia danhGia:hotel.getDanhGias())
+                    {
+                        rating+=danhGia.getRate();
+                    }
+                    rating=rating/hotel.getDanhGias().size();
+                    viewHolder.ratingBar_hotel_custom.setRating(rating);
                 }
 
                 viewHolder.btnXemChiTiet_hotel_custom.setOnClickListener(new View.OnClickListener() {

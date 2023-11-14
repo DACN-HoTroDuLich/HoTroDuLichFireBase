@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.cntt196_hotrodulichfirebase.FirebaseService.StorageService;
 import com.example.cntt196_hotrodulichfirebase.R;
 import com.squareup.picasso.Picasso;
 
@@ -22,11 +23,15 @@ public class Adapter_listview_images_ver1 extends RecyclerView.Adapter<Adapter_l
     private ArrayList<String> dsHinh;
     private View mView;
     private Context context;
+    private String Id_Document;
+    private boolean IsTravel;
 
-    public Adapter_listview_images_ver1(ArrayList<String> dsHinh, Context context) {
+    public Adapter_listview_images_ver1(ArrayList<String> dsHinh, Context context, String Id_Document,boolean IsTravel) {
         this.context = context;
         this.inflater= LayoutInflater.from(context);
+        this.Id_Document=Id_Document;
         this.dsHinh=dsHinh;
+        this.IsTravel=IsTravel;
 
     }
 
@@ -43,14 +48,8 @@ public class Adapter_listview_images_ver1 extends RecyclerView.Adapter<Adapter_l
     @Override
     public void onBindViewHolder(@NonNull Adapter_listview_images_ver1.MyViewHolder holder, int position) {
 
-        Picasso picasso=Picasso.with(inflater.getContext());
-        Log.e("LinkHinh","=>"+position+" ; "+dsHinh.get(position));
-        picasso.load(dsHinh.get(position)).resize(120,90)
-                .placeholder(R.drawable.default_image_empty)
-                .into(holder.imgHinhAnh);
-        //picasso.cancelRequest(holder.imgHinhAnh);
-        picasso.invalidate(dsHinh.get(position));
-
+        String rootFile=((IsTravel==true)?"Travel/": "Hotel/")+ Id_Document+"/"+dsHinh.get(position);
+        StorageService.LoadImageUri(rootFile,holder.imgHinhAnh,context,1280,750);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

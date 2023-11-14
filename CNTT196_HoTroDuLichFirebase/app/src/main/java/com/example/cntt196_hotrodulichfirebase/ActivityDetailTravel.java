@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.example.cntt196_hotrodulichfirebase.FirebaseService.StorageService;
 import com.example.cntt196_hotrodulichfirebase.adapters.Adapter_listview_images_ver1;
 import com.example.cntt196_hotrodulichfirebase.adapters.DateTimeToString;
 import com.example.cntt196_hotrodulichfirebase.models.DanhGia;
@@ -89,11 +90,8 @@ public class ActivityDetailTravel extends AppCompatActivity {
     {
         if(travel.getNguoiDang()!=null)
         {
-            Picasso picasso=Picasso.with(this);
-            picasso.load(travel.getNguoiDang().getAnhDaiDien()).resize(90,90)
-                    .placeholder(R.drawable.icon2)
-                    .into(imgNguoiDung_detail);
-            picasso.invalidate(travel.getNguoiDang().getAnhDaiDien());
+            String filePath="avarta/" + travel.getNguoiDang().getAnhDaiDien();
+            StorageService.LoadImageUri_Avarta(filePath,imgNguoiDung_detail,this);
 
             tvTenNguoiDung_detail.setText(travel.getNguoiDang().getTenNguoiDang());
             tvNgayDang_detail.setText(DateTimeToString.Format(travel.getNgayDang()));
@@ -104,7 +102,7 @@ public class ActivityDetailTravel extends AppCompatActivity {
             { tvGia_detail.setText("Miễn phí vé tham quan");}
             else
             { tvGia_detail.setText("Giá tham khảo chỉ từ "
-                    +String.valueOf( travel.getGiaMin()) +" đến "+String.valueOf(travel.getGiaMax()));}
+                    +DateTimeToString.FormatVND(travel.getGiaMin()) +" đến "+DateTimeToString.FormatVND(travel.getGiaMax()));}
 
             if(travel.getLuotThichs()!=null) {
                 if (travel.getLuotThichs().size() > 0) {
@@ -137,15 +135,11 @@ public class ActivityDetailTravel extends AppCompatActivity {
             {
                 if(travel.getHinhAnhs().size()>0)
                 {
-                    Picasso picassoH1=Picasso.with(this);
-                    picassoH1.load(travel.getHinhAnhs().get(0)).resize(1280  ,720)
-                            .placeholder(R.drawable.default_image_empty)
-                            .into(imgHinhAnhBaiDang_detail);
-                    picassoH1.invalidate(travel.getHinhAnhs().get(0));
-
+                    String rootFile= "Travel/"+ travel.getID_Document()+"/"+travel.getHinhAnhs().get(0);
+                    StorageService.LoadImageUri(rootFile,imgHinhAnhBaiDang_detail,this,1280,750);
 
                     Adapter_listview_images_ver1 adapter_listview_images_ver1=new
-                            Adapter_listview_images_ver1(travel.getHinhAnhs(),ActivityDetailTravel.this);
+                            Adapter_listview_images_ver1(travel.getHinhAnhs(),ActivityDetailTravel.this,travel.getID_Document(),true);
                     recylistHinhAnh_detail.setAdapter(adapter_listview_images_ver1);
                     recylistHinhAnh_detail.setLayoutManager(new LinearLayoutManager(ActivityDetailTravel.this
                             , LinearLayoutManager.HORIZONTAL, false));

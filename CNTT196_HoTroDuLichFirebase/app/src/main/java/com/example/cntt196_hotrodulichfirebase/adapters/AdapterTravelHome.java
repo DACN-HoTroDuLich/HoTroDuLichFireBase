@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cntt196_hotrodulichfirebase.ActivityDetailTravel;
+import com.example.cntt196_hotrodulichfirebase.FirebaseService.StorageService;
 import com.example.cntt196_hotrodulichfirebase.R;
 import com.example.cntt196_hotrodulichfirebase.models.NguoiDang;
 import com.example.cntt196_hotrodulichfirebase.models.Travel;
@@ -35,94 +36,15 @@ import java.util.Map;
 public class AdapterTravelHome extends RecyclerView.Adapter<AdapterTravelHome.MyViewHolder> {
     private LayoutInflater inflater;
     private ArrayList<Travel> Travels;
-    private QuerySnapshot queryDocumentSnapshots;
+
     private View mView;
     private Context context;
 
-    public AdapterTravelHome(QuerySnapshot queryDocumentSnapshots, Context context) {
+    public AdapterTravelHome(ArrayList<Travel> Travels, Context context) {
         this.context = context;
         this.inflater= LayoutInflater.from(context);
+        this.Travels=Travels;
 
-        this.queryDocumentSnapshots=queryDocumentSnapshots;
-        this.Travels=new ArrayList<>();
-
-        if (this.queryDocumentSnapshots != null)
-        {
-            for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments())
-            {
-                FirebaseStorage storage = FirebaseStorage.getInstance();
-                StorageReference storageRef = storage.getReference();
-
-                Travel travel=new Travel();
-                travel.setID_Document(document.getId());
-                Map<String,Object> subDocument=(Map<String,Object>) document.get("NguoiDang");
-                Log.d("TravelNguoiDang"," => " +  subDocument);
-                if(subDocument!=null)
-                {
-                    NguoiDang nguoiDang=new NguoiDang();
-                    nguoiDang.setMaNguoiDang((String)subDocument.get("MaNguoiDang"));
-                    nguoiDang.setTenNguoiDang((String)subDocument.get("TenNguoiDang"));
-                    nguoiDang.setAnhDaiDien((String)subDocument.get("AnhDaiDien"));
-
-                    //StorageReference pathReference = storageRef.child("avarta/"+(String)subDocument.get("AnhDaiDien"));
-                    storageRef.child("avarta/"+(String)subDocument.get("AnhDaiDien")).getDownloadUrl()
-                            .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    nguoiDang.setAnhDaiDien(uri.toString());
-                                    Toast.makeText(context, "=>"+uri, Toast.LENGTH_SHORT).show();
-                                    Log.e("URL_avarta","=>"+uri);
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-
-                                }
-                            });
-
-
-                    travel.setNguoiDang(nguoiDang);
-                }
-                travel.setTieuDe(document.getString("TieuDe"));
-                travel.setMoTa(document.getString("MoTa"));
-                travel.setDanhGias(null);
-                travel.setDiaChi(document.getString("DiaChi"));
-                travel.setGiaMax(document.getDouble("GiaMax"));
-                travel.setGiaMin(document.getDouble("GiaMin"));
-                //travel.setHinhAnhs((ArrayList<String>) document.get("HinhAnh"));
-
-                ArrayList<String> dsHinh=new ArrayList<>();
-                for (String strHinhAnh:(ArrayList<String>) document.get("HinhAnh"))
-                {
-                    String rootFile= "Travel/"+ document.getId()+"/";
-                    storageRef.child(rootFile + strHinhAnh).getDownloadUrl()
-                            .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    dsHinh.add(uri.toString());
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-
-                                }
-                            });
-                }
-                travel.setHinhAnhs(dsHinh);
-
-
-
-                Timestamp timestamp=document.getTimestamp("NgayDang");
-
-                travel.setNgayDang(timestamp.toDate().toInstant()
-                        .atZone(ZoneId.systemDefault()).toLocalDateTime());
-
-                for(int i=0;i<15;i++)
-                {
-                    Travels.add(travel);
-                }
-            }
-        }
 
     }
 
@@ -141,13 +63,9 @@ public class AdapterTravelHome extends RecyclerView.Adapter<AdapterTravelHome.My
         {
             if(Travels.get(position).getNguoiDang()!=null)
             {
-                Picasso picasso=Picasso.with(inflater.getContext());
+                String filePath= "avarta/"+Travels.get(position).getNguoiDang().getAnhDaiDien();
+                StorageService.LoadImageUri_Avarta(filePath,holder.imgNguoiDung_travel_custom_fragHome,context);
                 Log.e("LinkHinh","=>"+position+" ; "+Travels.get(position).getNguoiDang().getAnhDaiDien());
-                picasso.load(Travels.get(position).getNguoiDang().getAnhDaiDien()).resize(90,90)
-                        .placeholder(R.drawable.icon2)
-                        .into(holder.imgNguoiDung_travel_custom_fragHome);
-                //picasso.cancelRequest(holder.imgHinhAnh);
-                picasso.invalidate(Travels.get(position).getNguoiDang().getAnhDaiDien());
 
                 holder.tvTenNguoiDung_travel_custom_fragHome.setText(Travels.get(position).getNguoiDang().getTenNguoiDang());
                 holder.tvNgayDang_travel_custom_fragHome.setText(DateTimeToString.Format(Travels.get(position).getNgayDang()));
@@ -164,13 +82,9 @@ public class AdapterTravelHome extends RecyclerView.Adapter<AdapterTravelHome.My
                 {
                     if(Travels.get(position).getHinhAnhs().size()>0)
                     {
-                        Picasso picassoAnhBia=Picasso.with(inflater.getContext());
-
-                        picassoAnhBia.load(Travels.get(position).getHinhAnhs().get(0)).resize(1280,720)
-                                .placeholder(R.drawable.default_image_empty)
-                                .into(holder.imgView_travel_custom_fragHome);
-                        //picasso.cancelRequest(holder.imgHinhAnh);
-                        picasso.invalidate(Travels.get(position).getHinhAnhs().get(0));
+                        String rootFile= "Travel/"+ Travels.get(position).getID_Document()+"/"
+                                +Travels.get(position).getHinhAnhs().get(0);
+                        StorageService.LoadImageUri(rootFile,holder.imgView_travel_custom_fragHome,context,1280,750);
                     }
                 }
             }

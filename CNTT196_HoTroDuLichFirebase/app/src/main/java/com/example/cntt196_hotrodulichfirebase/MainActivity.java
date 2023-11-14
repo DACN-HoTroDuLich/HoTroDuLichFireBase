@@ -22,11 +22,16 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.cntt196_hotrodulichfirebase.models.User_;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,12 +39,23 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private BottomNavigationView bottomNavigationView;
     private NavigationView navigationView;
+    public static User_ USER_;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Init();
+
+        this.USER_=new User_();
+        this.USER_.setActive(true);
+        this.USER_.setAuthor(false);
+        this.USER_.setDateOfBirth(LocalDate.from(LocalDateTime.now()));
+        this.USER_.setFullName("Võ Nguyễn Duy Tân");
+        this.USER_.setAvarta("https://firebasestorage.googleapis.com/v0/b/cntt196-hotrodulich.appspot.com/o/avarta%2Flisa.jpg?alt=media&token=041fad2b-a80d-4323-8c39-d912cceac3cf");
+        this.USER_.setIdentifier("duytantt9@gmail.com");
+
+
         if(savedInstanceState==null)
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout,new FragmentHome()).commit();
