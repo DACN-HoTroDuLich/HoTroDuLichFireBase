@@ -8,12 +8,13 @@
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_gravity="top">
+        android:layout_gravity="top"
+        android:background="@color/blue_light1">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:background="@color/blue_light1"
+
             android:weightSum="10">
             <ImageButton
                 android:id="@+id/btnBack_detail_hotel"
@@ -22,7 +23,7 @@
                 android:layout_weight="1"
                 android:layout_gravity="left"
                 android:layout_marginLeft="-15dp"
-                android:background="@color/blue_light1"
+                android:background="@android:color/transparent"
                 app:srcCompat="@drawable/baseline_keyboard_backspace_24"/>
 
             <TextView
@@ -152,13 +153,28 @@
                     android:text="mo ta"
                     android:textSize="16dp"/>
 
-                <TextView
-                    android:id="@+id/tvDiaChi_detail_hotel"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Dia chi"
-                    android:textSize="16dp"
-                    android:textStyle="bold|italic"/>
+                    android:orientation="horizontal"
+                    android:weightSum="9">
+                    <ImageView
+                        android:id="@+id/imageView5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/baseline_location_on_24" />
+
+                    <TextView
+                        android:id="@+id/tvDiaChi_detail_hotel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="8"
+                        android:text="Dia chi"
+                        android:textSize="16dp"
+                        android:textStyle="bold|italic"/>
+                </LinearLayout>
+
 
                 <ImageButton
                     android:id="@+id/btnShowMap_detail_hotel"

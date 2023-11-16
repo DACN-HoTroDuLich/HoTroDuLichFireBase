@@ -52,7 +52,7 @@ public class AdapterPhong extends RecyclerView.Adapter<AdapterPhong.ViewHolder> 
         Phong phong=arrayListPhong.get(position);
         if (phong.getHinhAnh() != null) {
             String rootFile= "Hotel/"+ Id_Document+"/"+phong.getHinhAnh();
-            StorageService.LoadImageUri(rootFile,holder.imagePhong_custom_phong,context,1280,750);
+            StorageService.LoadImageUri(rootFile,holder.imagePhong_custom_phong,context,1300,750);
 
             holder.tvSoGiuong_custom_phong.setText("Phòng "+phong.getSoGiuong()+" giường");
             if(phong.getGiaMax()==0)

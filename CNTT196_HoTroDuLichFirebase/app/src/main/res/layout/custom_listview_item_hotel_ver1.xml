@@ -21,9 +21,9 @@
             android:weightSum="5">
 
             <androidx.cardview.widget.CardView
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                app:cardCornerRadius="30dp">
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:cardCornerRadius="20dp">
                 <ImageView
                     android:id="@+id/imgNguoiDung_hotel_custom"
                     android:layout_width="match_parent"

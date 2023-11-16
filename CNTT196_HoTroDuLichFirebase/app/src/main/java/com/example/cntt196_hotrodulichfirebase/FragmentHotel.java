@@ -1,27 +1,42 @@
 package com.example.cntt196_hotrodulichfirebase;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.AbsListView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.cntt196_hotrodulichfirebase.FirebaseService.StorageService;
 import com.example.cntt196_hotrodulichfirebase.adapters.AdapterHotel;
 import com.example.cntt196_hotrodulichfirebase.adapters.AdapterTravel;
+import com.example.cntt196_hotrodulichfirebase.adapters.Adapter_listview_tinh_ver1;
+import com.example.cntt196_hotrodulichfirebase.adapters.Adapter_listview_tinh_ver2;
 import com.example.cntt196_hotrodulichfirebase.models.DanhGia;
 import com.example.cntt196_hotrodulichfirebase.models.Hotel;
+import com.example.cntt196_hotrodulichfirebase.models.LuotThich;
 import com.example.cntt196_hotrodulichfirebase.models.NguoiDang;
 import com.example.cntt196_hotrodulichfirebase.models.Phong;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -52,14 +67,20 @@ public class FragmentHotel extends Fragment {
     private View mView;
     //Adapter
     private AdapterHotel adapterHotel;
+    private Adapter_listview_tinh_ver1 adapter_listview_tinh_ver1;
+    private Adapter_listview_tinh_ver2 adapter_listview_tinh_ver2;
     //DuLieu
     private Context context;
     private LinearLayout linearLayout_fragmentHotel;
     private ListView listView;
 
+
+    private RecyclerView lvTinh_fragmentHotel,lvTinh_ver2_fragmentHotel;
+
     private boolean Flag;
 
     private ArrayList<Hotel> arrayListHotel;
+    private ArrayList<String> arrayListTinh;
     public FragmentHotel() {
         // Required empty public constructor
     }
@@ -96,17 +117,81 @@ public class FragmentHotel extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         arrayListHotel=new ArrayList<>();
+        arrayListTinh=new ArrayList<>();
+
         mView = inflater.inflate(R.layout.fragment_hotel, container, false);
         context=requireContext();
         addControls(mView);
+//        String rootFileImgIntro= "SlideIntro/Hotel/intro-hotel1.png";
+//        StorageService.LoadImageUri(rootFileImgIntro, imageIntro_fragmentHotel,context,1580,720);
+
         adapterHotel=new AdapterHotel(arrayListHotel,getContext());
+        adapter_listview_tinh_ver1=new Adapter_listview_tinh_ver1(arrayListTinh,getContext());
+        adapter_listview_tinh_ver2=new Adapter_listview_tinh_ver2(arrayListTinh, getContext());
         listView.setAdapter(adapterHotel);
+
+        lvTinh_ver2_fragmentHotel.setAdapter(adapter_listview_tinh_ver2);
+        lvTinh_ver2_fragmentHotel.setLayoutManager(new LinearLayoutManager(context
+                , LinearLayoutManager.HORIZONTAL, false));
+
+        lvTinh_fragmentHotel.setAdapter(adapter_listview_tinh_ver1);
+        lvTinh_fragmentHotel.setLayoutManager(new LinearLayoutManager(context
+                , LinearLayoutManager.HORIZONTAL, false));
+
         LoadListHotel();
+
+        Animation animationIn= AnimationUtils.loadAnimation(context,R.anim.list_view_in);
+        Animation animationOut= AnimationUtils.loadAnimation(context,R.anim.list_view_out);
+        //lvTinh_fragmentHotel.startAnimation(animationIn);
+        SetStateSrollListView(animationIn, animationOut);
+
         return mView;
+    }
+
+
+    private void SetStateSrollListView(Animation animationIn, Animation animationOut)
+    {
+        final int[] previousVisibleItem = {0};
+        final int[] previousVisibleItemLast = {0};
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (firstVisibleItem > previousVisibleItem[0]) {
+                    if(previousVisibleItem[0]<previousVisibleItemLast[0])
+                    {
+                        lvTinh_fragmentHotel.startAnimation(animationIn);
+
+                    }
+                    lvTinh_ver2_fragmentHotel.setVisibility(View.VISIBLE);
+                    lvTinh_fragmentHotel.setVisibility(View.GONE);
+                } else if (firstVisibleItem < previousVisibleItem[0]) {
+                    // Người dùng đang cuộn lên
+                    if(previousVisibleItem[0]>previousVisibleItemLast[0])
+                    {
+                        lvTinh_fragmentHotel.startAnimation(animationOut);
+
+                    }
+                    lvTinh_ver2_fragmentHotel.setVisibility(View.GONE);
+                    lvTinh_fragmentHotel.setVisibility(View.VISIBLE);
+
+                }
+                previousVisibleItemLast[0]=previousVisibleItem[0];
+                previousVisibleItem[0] = firstVisibleItem;
+            }
+        });
     }
     private void addControls(View view) {
         listView= view.findViewById(R.id.listViewHotel);
         linearLayout_fragmentHotel=view.findViewById(R.id.linearLayout_fragmentHotel);
+
+        lvTinh_fragmentHotel = view.findViewById(R.id.lvTinh_fragmentHotel);
+        lvTinh_ver2_fragmentHotel = view.findViewById(R.id.lvTinh_ver2_fragmentHotel);
+        lvTinh_ver2_fragmentHotel.setVisibility(View.GONE);
     }
     private void LoadListHotel()
     {
@@ -182,6 +267,18 @@ public class FragmentHotel extends Fragment {
                                 }
                                 hotel.setDanhGias(dsDanhGia);
 
+                                ArrayList<Map<String,Object>> subArrayDocumentLuotThich= (ArrayList<Map<String, Object>>) document.get("LuotThich");
+                                if(subArrayDocumentLuotThich!=null)
+                                {
+                                    ArrayList<NguoiDang> dsLuotThich=new ArrayList<>();
+                                    for (Map<String,Object> objectMap:subArrayDocumentLuotThich)
+                                    {
+                                        dsLuotThich.add(new NguoiDang(null,(String) objectMap.get("MaNguoiThich")
+                                                , (String) objectMap.get("TenNguoiThich")));
+                                    }
+                                    hotel.setLuotThichs(dsLuotThich);
+                                }
+
                                 Timestamp timestamp=document.getTimestamp("NgayDang");
 
                                 hotel.setNgayDang(timestamp.toDate().toInstant()
@@ -192,8 +289,12 @@ public class FragmentHotel extends Fragment {
                                     arrayListHotel.add(hotel);
                                     arrayListHotel.add(hotel);
                                     arrayListHotel.add(hotel);
+                                    String[] DiaChiSplit=hotel.getDiaChi().split(",");
+                                    arrayListTinh.add(DiaChiSplit[DiaChiSplit.length-1]);
                                 }
                                 adapterHotel.notifyDataSetChanged();
+                                adapter_listview_tinh_ver1.notifyDataSetChanged();
+                                adapter_listview_tinh_ver2.notifyDataSetChanged();
                             }
                         }
 
@@ -201,4 +302,5 @@ public class FragmentHotel extends Fragment {
                 });
 
     }
+
 }

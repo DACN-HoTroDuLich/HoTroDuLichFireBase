@@ -15,6 +15,18 @@
         android:orientation="vertical"
         android:paddingBottom="60dp">
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/lvTinh_ver2_fragmentTravel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity= "left|center"
+            android:background="@color/blue_light1"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/lvTinh_fragmentTravel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity= "left|center" />
+
         <ListView
             android:id="@+id/listViewTravel"
             android:layout_width="match_parent"

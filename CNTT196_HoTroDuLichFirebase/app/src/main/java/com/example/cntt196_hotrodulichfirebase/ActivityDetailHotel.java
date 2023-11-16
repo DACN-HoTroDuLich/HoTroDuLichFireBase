@@ -16,6 +16,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -33,9 +34,12 @@ import com.example.cntt196_hotrodulichfirebase.adapters.Adapter_listview_images_
 import com.example.cntt196_hotrodulichfirebase.adapters.DateTimeToString;
 import com.example.cntt196_hotrodulichfirebase.models.DanhGia;
 import com.example.cntt196_hotrodulichfirebase.models.Hotel;
+import com.example.cntt196_hotrodulichfirebase.models.NguoiDang;
 import com.example.cntt196_hotrodulichfirebase.models.Travel;
 import com.example.cntt196_hotrodulichfirebase.models.User_;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 public class ActivityDetailHotel extends AppCompatActivity {
 
@@ -98,12 +102,7 @@ public class ActivityDetailHotel extends AppCompatActivity {
                 finish();
             }
         });
-        btnXemTatCa_detail_hotel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-            }
-        });
 
         btnThemNhanXet_detail_hotel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,11 +114,80 @@ public class ActivityDetailHotel extends AppCompatActivity {
                 else {
                     AlertDialog.Builder builder=new AlertDialog.Builder(ActivityDetailHotel.this);
                     builder.setMessage("Cần đăng nhập để kích hoạt tính năng này");
+                    builder.setPositiveButton("Đóng", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+                    builder.setNegativeButton("Đăng nhập", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intentLogin=new Intent(ActivityDetailHotel.this,ActivityLogin.class);
+                            ActivityDetailHotel.this.startActivity(intentLogin);
+                        }
+                    });
+                }
+            }
+        });
+        btnXemTatCa_detail_hotel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(hotel.getDanhGias()!=null)
+                {
+                    LoadDialogListNhanXet();
+                }
+                else
+                {
+                    AlertDialog.Builder builder=new AlertDialog.Builder(ActivityDetailHotel.this);
+                    builder.setMessage("Hiện chưa có đánh giá về bài viết này");
+                    builder.setPositiveButton("Đóng", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
                 }
             }
         });
     }
 
+    private void LoadDialogListNhanXet()
+    {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_layout_danh_gia_ver1);
+        dialog.setCancelable(false);
+
+        ImageButton imgBtn_lose_dialog_layout_danh_gia;
+        RecyclerView lvDanhGia_dialog_layout_danh_gia;
+
+        imgBtn_lose_dialog_layout_danh_gia=dialog.findViewById(R.id.imgBtn_lose_dialog_layout_danh_gia);
+        lvDanhGia_dialog_layout_danh_gia= dialog.findViewById(R.id.lvDanhGia_dialog_layout_danh_gia);
+
+        dialog.show();
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.getWindow().setGravity(Gravity.CENTER);
+
+        imgBtn_lose_dialog_layout_danh_gia.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //dialog.setCancelable(true);
+                dialog.cancel();
+            }
+        });
+
+        AdapterNhanXet adapterNhanXet=new AdapterNhanXet(ActivityDetailHotel.this,hotel.getDanhGias()
+                ,hotel.getID_Document(),2);
+        lvDanhGia_dialog_layout_danh_gia.setAdapter(adapterNhanXet);
+        lvDanhGia_dialog_layout_danh_gia.setLayoutManager(new LinearLayoutManager(ActivityDetailHotel.this
+                , LinearLayoutManager.VERTICAL, false));
+
+    }
     private void LoadDialogThemNhanXet()
     {
         final Dialog dialog = new Dialog(this);
@@ -174,17 +242,26 @@ public class ActivityDetailHotel extends AppCompatActivity {
             tvTieuDe_detail_hotel.setText(hotel.getTenKhachSan());
             tvMoTa_detail_hotel.setText(hotel.getMoTa());
             tvDiaChi_detail_hotel.setText(hotel.getDiaChi());
+
             if(hotel.getLuotThichs()!=null) {
-                if (hotel.getLuotThichs().size() > 0) {
-                    btnFavorite_detail_hotel.setImageResource(R.drawable.baseline_volunteer_activism_24_0);
-                    btnFavorite_detail_hotel.setTag(R.drawable.baseline_volunteer_activism_24_0);
+                btnFavorite_detail_hotel.setImageResource(R.drawable.baseline_volunteer_activism_24_0);
+                btnFavorite_detail_hotel.setTag(R.drawable.baseline_volunteer_activism_24_0);
+                if (hotel.getLuotThichs().size() > 0)
+                {
+                    for (NguoiDang nguoiDang : hotel.getLuotThichs()) {
+                        if (nguoiDang.getMaNguoiDang().equals(MainActivity.USER_.getIdentifier())) {
+                            Log.e("UserState", "=>" + nguoiDang.getMaNguoiDang());
+                            btnFavorite_detail_hotel.setTag(R.drawable.baseline_volunteer_activism_24);
+                            btnFavorite_detail_hotel.setImageResource((int) btnFavorite_detail_hotel.getTag());
+                        }
+                    }
                     if (hotel.getLuotThichs().size() > 1) {
-                        tvCountFavorite_detail_hotel.setText(hotel.getLuotThichs().get(0).getTenNguoiDang()
-                                + " và " + hotel.getLuotThichs().size() + "+");
+                        int countLuotThich = hotel.getLuotThichs().size() - 1;
+                        tvCountFavorite_detail_hotel.setText(hotel.getLuotThichs().get(0).getTenNguoiDang() +
+                                " và +" + countLuotThich);
                     } else {
                         tvCountFavorite_detail_hotel.setText(hotel.getLuotThichs().get(0).getTenNguoiDang());
                     }
-
                 }
             }
             else {
@@ -233,13 +310,25 @@ public class ActivityDetailHotel extends AppCompatActivity {
                 rating=rating/hotel.getDanhGias().size();
                 AvargarateRatingBar_detail_hotel.setRating(rating);
                 AvargarateRatingBar_detail_hotel.setIsIndicator(true);
-
+                ArrayList<DanhGia> dsDanhGia=new ArrayList<>();
+                if(hotel.getDanhGias().size()<3)
+                {
+                    for (DanhGia danhGia:hotel.getDanhGias())
+                    {
+                        dsDanhGia.add(danhGia);
+                    }
+                }
+                else {
+                    dsDanhGia.add(hotel.getDanhGias().get(0));
+                    dsDanhGia.add(hotel.getDanhGias().get(1));
+                }
                 AdapterNhanXet adapterNhanXet=new AdapterNhanXet(ActivityDetailHotel.this
-                        ,hotel.getDanhGias(),hotel.getID_Document());
+                        ,dsDanhGia,hotel.getID_Document(),1);
                 lvDanhGia_detail_hotel.setAdapter(adapterNhanXet);
                 lvDanhGia_detail_hotel.setLayoutManager(new LinearLayoutManager(ActivityDetailHotel.this
                         , LinearLayoutManager.VERTICAL, false));
             }
+
         }
 
     }

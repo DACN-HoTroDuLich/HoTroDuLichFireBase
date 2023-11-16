@@ -24,6 +24,7 @@ import androidx.cardview.widget.CardView;
 import com.example.cntt196_hotrodulichfirebase.ActivityDetailHotel;
 import com.example.cntt196_hotrodulichfirebase.ActivityDetailTravel;
 import com.example.cntt196_hotrodulichfirebase.FirebaseService.StorageService;
+import com.example.cntt196_hotrodulichfirebase.MainActivity;
 import com.example.cntt196_hotrodulichfirebase.R;
 import com.example.cntt196_hotrodulichfirebase.models.DanhGia;
 import com.example.cntt196_hotrodulichfirebase.models.Hotel;
@@ -43,6 +44,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 
 public class AdapterHotel extends BaseAdapter {
     private ArrayList<Hotel> arrayListHotel;
@@ -157,6 +159,33 @@ public class AdapterHotel extends BaseAdapter {
                     rating = rating / hotel.getDanhGias().size();
                     viewHolder.ratingBar_hotel_custom.setRating(rating);
                 }
+                if(hotel.getLuotThichs()!=null)
+                {
+                    if(hotel.getLuotThichs().size()>0)
+                    {
+                        for(NguoiDang nguoiDang :hotel.getLuotThichs())
+                        {
+                            if(nguoiDang.getMaNguoiDang().equals(MainActivity.USER_.getIdentifier()))
+                            {
+                                Log.e("UserState","=>"+nguoiDang.getMaNguoiDang());
+                                viewHolder.btnFavorite_hodel_custom.setTag(R.drawable.baseline_volunteer_activism_24);
+                                viewHolder.btnFavorite_hodel_custom.setImageResource((int) viewHolder.btnFavorite_hodel_custom.getTag());
+                            }
+                        }
+
+                        if(hotel.getLuotThichs().size()>1)
+                        {
+                            int countLuotThich=hotel.getLuotThichs().size()-1;
+                            viewHolder.tvCountFavorite_hotel_custom.setText(hotel.getLuotThichs().get(0).getTenNguoiDang()+
+                                    " và +"+ countLuotThich);
+                        }
+                        else
+                        {
+                            viewHolder.tvCountFavorite_hotel_custom.setText(hotel.getLuotThichs().get(0).getTenNguoiDang());
+                        }
+                    }
+
+                }
             }
 
 
@@ -241,6 +270,32 @@ public class AdapterHotel extends BaseAdapter {
                     }
                     rating=rating/hotel.getDanhGias().size();
                     viewHolder.ratingBar_hotel_custom.setRating(rating);
+                }
+                if(hotel.getLuotThichs()!=null)
+                {
+                    if(hotel.getLuotThichs().size()>0)
+                    {
+                        for(NguoiDang nguoiDang :hotel.getLuotThichs())
+                        {
+                            if(nguoiDang.getMaNguoiDang().equals(MainActivity.USER_.getIdentifier()))
+                            {
+                                Log.e("UserState","=>"+nguoiDang.getMaNguoiDang());
+                                viewHolder.btnFavorite_hodel_custom.setTag(R.drawable.baseline_volunteer_activism_24);
+                                viewHolder.btnFavorite_hodel_custom.setImageResource((int) viewHolder.btnFavorite_hodel_custom.getTag());
+                            }
+                        }
+                        if(hotel.getLuotThichs().size()>1)
+                        {
+                            int countLuotThich=hotel.getLuotThichs().size()-1;
+                            viewHolder.tvCountFavorite_hotel_custom.setText(hotel.getLuotThichs().get(0).getTenNguoiDang()+
+                                    " và +"+ countLuotThich);
+                        }
+                        else
+                        {
+                            viewHolder.tvCountFavorite_hotel_custom.setText(hotel.getLuotThichs().get(0).getTenNguoiDang());
+                        }
+                    }
+
                 }
 
                 viewHolder.btnXemChiTiet_hotel_custom.setOnClickListener(new View.OnClickListener() {
