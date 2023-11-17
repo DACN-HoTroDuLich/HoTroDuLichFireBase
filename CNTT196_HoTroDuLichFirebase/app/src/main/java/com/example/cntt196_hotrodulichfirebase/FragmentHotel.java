@@ -71,7 +71,7 @@ public class FragmentHotel extends Fragment {
     private Adapter_listview_tinh_ver2 adapter_listview_tinh_ver2;
     //DuLieu
     private Context context;
-    private LinearLayout linearLayout_fragmentHotel;
+    private LinearLayout linearLayout_fragmentHotel, linearLayout_listTinh_fragmentHotel;
     private ListView listView;
 
 
@@ -164,20 +164,23 @@ public class FragmentHotel extends Fragment {
                 if (firstVisibleItem > previousVisibleItem[0]) {
                     if(previousVisibleItem[0]<previousVisibleItemLast[0])
                     {
-                        lvTinh_fragmentHotel.startAnimation(animationIn);
+                        linearLayout_listTinh_fragmentHotel.startAnimation(animationIn);
 
                     }
                     lvTinh_ver2_fragmentHotel.setVisibility(View.VISIBLE);
-                    lvTinh_fragmentHotel.setVisibility(View.GONE);
-                } else if (firstVisibleItem < previousVisibleItem[0]) {
+                    linearLayout_listTinh_fragmentHotel.setVisibility(View.GONE);
+                }
+                else if(firstVisibleItem == previousVisibleItem[0])
+                {}
+                else if (firstVisibleItem < previousVisibleItem[0]) {
                     // Người dùng đang cuộn lên
                     if(previousVisibleItem[0]>previousVisibleItemLast[0])
                     {
-                        lvTinh_fragmentHotel.startAnimation(animationOut);
+                        linearLayout_listTinh_fragmentHotel.startAnimation(animationOut);
 
                     }
                     lvTinh_ver2_fragmentHotel.setVisibility(View.GONE);
-                    lvTinh_fragmentHotel.setVisibility(View.VISIBLE);
+                    linearLayout_listTinh_fragmentHotel.setVisibility(View.VISIBLE);
 
                 }
                 previousVisibleItemLast[0]=previousVisibleItem[0];
@@ -191,6 +194,7 @@ public class FragmentHotel extends Fragment {
 
         lvTinh_fragmentHotel = view.findViewById(R.id.lvTinh_fragmentHotel);
         lvTinh_ver2_fragmentHotel = view.findViewById(R.id.lvTinh_ver2_fragmentHotel);
+        linearLayout_listTinh_fragmentHotel=view.findViewById(R.id.linearLayout_listTinh_fragmentHotel);
         lvTinh_ver2_fragmentHotel.setVisibility(View.GONE);
     }
     private void LoadListHotel()
@@ -243,10 +247,11 @@ public class FragmentHotel extends Fragment {
                                 }
                                 hotel.setPhongs(dsPhong);
 
-                                ArrayList<DanhGia> dsDanhGia=new ArrayList<>();
+
                                 ArrayList<Map<String,Object>> subArrayDocumentDanhGia= (ArrayList<Map<String, Object>>) document.get("DanhGia");
                                 if(subArrayDocumentDanhGia!=null)
                                 {
+                                    ArrayList<DanhGia> dsDanhGia=new ArrayList<>();
                                     for (Map<String,Object> objectMap:subArrayDocumentDanhGia)
                                     {
                                         DanhGia danhGia=new DanhGia();
@@ -264,8 +269,9 @@ public class FragmentHotel extends Fragment {
                                         danhGia.setImgNguoiDang((String) objectMap.get("avartaNguoiDanhGia"));
                                         dsDanhGia.add(danhGia);
                                     }
+                                    hotel.setDanhGias(dsDanhGia);
                                 }
-                                hotel.setDanhGias(dsDanhGia);
+
 
                                 ArrayList<Map<String,Object>> subArrayDocumentLuotThich= (ArrayList<Map<String, Object>>) document.get("LuotThich");
                                 if(subArrayDocumentLuotThich!=null)
@@ -284,14 +290,12 @@ public class FragmentHotel extends Fragment {
                                 hotel.setNgayDang(timestamp.toDate().toInstant()
                                         .atZone(ZoneId.systemDefault()).toLocalDateTime());
 
-                                for(int i=0;i<15;i++)
-                                {
-                                    arrayListHotel.add(hotel);
-                                    arrayListHotel.add(hotel);
-                                    arrayListHotel.add(hotel);
-                                    String[] DiaChiSplit=hotel.getDiaChi().split(",");
-                                    arrayListTinh.add(DiaChiSplit[DiaChiSplit.length-1]);
-                                }
+                                arrayListHotel.add(hotel);
+                                String[] DiaChiSplit=hotel.getDiaChi().split(",");
+                                if(!TinhIsInstance(DiaChiSplit[DiaChiSplit.length-1]))
+                                { arrayListTinh.add(DiaChiSplit[DiaChiSplit.length-1]);}
+
+
                                 adapterHotel.notifyDataSetChanged();
                                 adapter_listview_tinh_ver1.notifyDataSetChanged();
                                 adapter_listview_tinh_ver2.notifyDataSetChanged();
@@ -301,6 +305,17 @@ public class FragmentHotel extends Fragment {
                     }
                 });
 
+    }
+    private boolean TinhIsInstance(String tenTinh)
+    {
+        for(String tinh: arrayListTinh)
+        {
+            if(tinh.equals(tenTinh))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

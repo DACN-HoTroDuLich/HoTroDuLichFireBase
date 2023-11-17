@@ -21,11 +21,26 @@
             android:layout_height="wrap_content"
             android:layout_gravity= "left|center"
             android:background="@color/blue_light1"/>
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/lvTinh_fragmentTravel"
+
+        <LinearLayout
+            android:id="@+id/linearLayout_listTinh_fragmentTravel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity= "left|center" />
+            android:orientation="vertical"
+            android:background="@color/blue_light1">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/lvTinh_fragmentTravel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity= "left|center" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text=""
+                android:background="@drawable/background_radius_bottom_listview_ver1"/>
+        </LinearLayout>
+
+
 
         <ListView
             android:id="@+id/listViewTravel"

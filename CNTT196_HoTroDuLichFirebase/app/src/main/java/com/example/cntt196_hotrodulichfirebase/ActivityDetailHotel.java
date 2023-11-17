@@ -278,6 +278,10 @@ public class ActivityDetailHotel extends AppCompatActivity {
                 AvargarateRatingBar_detail_hotel.setRating(rate);
                 tvCountDanhGia_detail_hotel.setText(rate+"\n"+"Đánh giá "+"("+hotel.getDanhGias().size()+")");
             }
+            else
+            {
+                tvCountDanhGia_detail_hotel.setText("0.0\n"+"Đánh giá(0)");
+            }
 
             if(hotel.getHinhAnhs()!=null)
             {

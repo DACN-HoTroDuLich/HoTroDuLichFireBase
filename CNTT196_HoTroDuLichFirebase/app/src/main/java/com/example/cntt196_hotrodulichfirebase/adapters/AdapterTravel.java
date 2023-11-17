@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import com.example.cntt196_hotrodulichfirebase.ActivityDetailTravel;
 import com.example.cntt196_hotrodulichfirebase.FirebaseService.StorageService;
 import com.example.cntt196_hotrodulichfirebase.R;
+import com.example.cntt196_hotrodulichfirebase.models.DanhGia;
 import com.example.cntt196_hotrodulichfirebase.models.HinhAnh;
 import com.example.cntt196_hotrodulichfirebase.models.NguoiDang;
 import com.example.cntt196_hotrodulichfirebase.models.Travel;
@@ -114,6 +115,18 @@ public class AdapterTravel extends BaseAdapter {
                 viewHolder.tvMoTa.setText((travel.getMoTa().length()>200)? ("Mô tả: "+travel.getMoTa().substring(0,200)
                         +"..."):("Mô tả: "+travel.getMoTa()));
                 viewHolder.tvDiaChi.setText("Địa chỉ: "+travel.getDiaChi());
+
+
+                if(travel.getDanhGias()!=null)
+                {
+                    float rate = 0;
+                    for (DanhGia danhGia : travel.getDanhGias()) {
+                        rate += danhGia.getRate();
+                    }
+                    rate = rate / travel.getDanhGias().size();
+                    viewHolder.ratingBar_custom.setRating(rate);
+                }
+
                 if(travel.getGiaMax()==0&&travel.getGiaMin()==0)
                 { viewHolder.tvGia.setText("Miễn phí vé tham quan");}
                 else

@@ -66,7 +66,7 @@ public class FragmentrTravel extends Fragment {
     private Adapter_listview_tinh_ver2 adapter_listview_tinh_ver2;
     //DuLieu
     private Context context;
-    private LinearLayout linearLayout_fragmentTravel;
+    private LinearLayout linearLayout_fragmentTravel, linearLayout_listTinh_fragmentTravel;
     private ListView listView;
     private RecyclerView lvTinh_fragmentTravel,lvTinh_ver2_fragmentTravel;
 
@@ -160,20 +160,23 @@ public class FragmentrTravel extends Fragment {
                 if (firstVisibleItem > previousVisibleItem[0]) {
                     if(previousVisibleItem[0]<previousVisibleItemLast[0])
                     {
-                        lvTinh_fragmentTravel.startAnimation(animationIn);
+                        linearLayout_listTinh_fragmentTravel.startAnimation(animationIn);
 
                     }
                     lvTinh_ver2_fragmentTravel.setVisibility(View.VISIBLE);
-                    lvTinh_fragmentTravel.setVisibility(View.GONE);
-                } else if (firstVisibleItem < previousVisibleItem[0]) {
+                    linearLayout_listTinh_fragmentTravel.setVisibility(View.GONE);
+                }
+                else if(firstVisibleItem == previousVisibleItem[0])
+                {}
+                else if (firstVisibleItem < previousVisibleItem[0]) {
                     // Người dùng đang cuộn lên
                     if(previousVisibleItem[0]>previousVisibleItemLast[0])
                     {
-                        lvTinh_fragmentTravel.startAnimation(animationOut);
+                        linearLayout_listTinh_fragmentTravel.startAnimation(animationOut);
 
                     }
                     lvTinh_ver2_fragmentTravel.setVisibility(View.GONE);
-                    lvTinh_fragmentTravel.setVisibility(View.VISIBLE);
+                    linearLayout_listTinh_fragmentTravel.setVisibility(View.VISIBLE);
 
                 }
                 previousVisibleItemLast[0]=previousVisibleItem[0];
@@ -184,6 +187,7 @@ public class FragmentrTravel extends Fragment {
     private void addControls(View view) {
         listView= view.findViewById(R.id.listViewTravel);
         linearLayout_fragmentTravel=view.findViewById(R.id.linearLayout_fragmentTravel);
+        linearLayout_listTinh_fragmentTravel=view.findViewById(R.id.linearLayout_listTinh_fragmentTravel);
 
         lvTinh_fragmentTravel = view.findViewById(R.id.lvTinh_fragmentTravel);
         lvTinh_ver2_fragmentTravel = view.findViewById(R.id.lvTinh_ver2_fragmentTravel);

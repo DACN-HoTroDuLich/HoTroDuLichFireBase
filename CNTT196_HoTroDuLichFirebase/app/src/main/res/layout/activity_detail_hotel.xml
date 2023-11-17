@@ -140,7 +140,7 @@
                         android:layout_width="150dp"
                         android:layout_height="50dp"
                         android:layout_weight="6"
-                        android:text="duytan va 145+ nguoi khac"
+                        android:text=""
                         android:paddingRight="20dp"
                         android:gravity="left|center"/>
 
@@ -221,6 +221,8 @@
                         android:weightSum="5"
                         android:layout_marginTop="0dp"
                         android:layout_marginBottom="5dp"
+                        android:paddingBottom="5dp"
+                        android:paddingTop="5dp"
                         android:background="@drawable/boder">
 
                         <TextView
@@ -240,7 +242,7 @@
                             android:scaleX="1"
                             android:layout_gravity="left"
                             android:scaleY="1"
-                            android:layout_height="120px"
+                            android:layout_height="wrap_content"
                             android:numStars="5"
                             android:isIndicator="false"
                             style="@android:style/Widget.Holo.RatingBar"

@@ -238,6 +238,16 @@ public class AdapterHotel extends BaseAdapter {
                 String[] DiaChiSplit=hotel.getDiaChi().split(",");
                 viewHolder.tvDiaChi_hotel_custom.setText("Địa chỉ: " + DiaChiSplit[DiaChiSplit.length-2]+", "
                         +DiaChiSplit[DiaChiSplit.length-1]);
+                viewHolder.tvhotelStar_hotel_custom.setText("Khách sạn "+hotel.getHangSao()+"sao");
+                if(hotel.getDanhGias()!=null)
+                {
+                    float rate = 0;
+                    for (DanhGia danhGia : hotel.getDanhGias()) {
+                        rate += danhGia.getRate();
+                    }
+                    rate = rate / hotel.getDanhGias().size();
+                    viewHolder.ratingBar_hotel_custom.setRating(rate);
+                }
 
                 if (hotel.getLuotThichs() != null) {
                     if (hotel.getLuotThichs().size() > 0) {

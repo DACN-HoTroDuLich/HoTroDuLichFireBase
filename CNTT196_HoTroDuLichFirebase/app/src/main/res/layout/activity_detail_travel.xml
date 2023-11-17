@@ -212,6 +212,8 @@
                 android:weightSum="5"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
+                android:paddingBottom="5dp"
+                android:paddingTop="5dp"
                 android:background="@drawable/boder">
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -234,12 +236,11 @@
                         android:gravity="left|center"/>
                     <RatingBar
                         android:id="@+id/AvargarateRatingBar_detail_travel"
-                        android:layout_marginTop="5dp"
                         android:layout_width="wrap_content"
                         android:scaleX="1"
-                        android:layout_gravity="left"
+                        android:layout_gravity="left|center"
                         android:scaleY="1"
-                        android:layout_height="120px"
+                        android:layout_height="wrap_content"
                         android:numStars="5"
                         android:isIndicator="false"
                         style="@android:style/Widget.Holo.RatingBar"
