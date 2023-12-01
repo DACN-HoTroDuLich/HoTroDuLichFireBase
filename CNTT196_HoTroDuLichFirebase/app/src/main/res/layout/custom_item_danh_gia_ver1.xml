@@ -21,6 +21,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 app:cardCornerRadius="20dp">
+
                 <ImageView
                     android:id="@+id/imgNguoiDung_custom_item_danhgia"
                     android:layout_width="match_parent"
