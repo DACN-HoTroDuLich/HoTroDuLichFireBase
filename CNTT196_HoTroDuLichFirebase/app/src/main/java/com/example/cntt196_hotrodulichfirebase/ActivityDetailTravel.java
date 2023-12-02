@@ -44,7 +44,7 @@ public class ActivityDetailTravel extends AppCompatActivity {
             , tvDiaChi_detail, tvGia_detail, tvCountFavorite_detail, tvCountDanhGia_detail_travel;
     private ImageView imgNguoiDung_detail, imgHinhAnhBaiDang_detail;
     private RatingBar AvargarateRatingBar_detail_travel;
-    private ImageButton btnFavorite_detail, btnBack;
+    private ImageButton btnFavorite_detail, btnBack, btnShowMap_detail_Travel;
     private RecyclerView recylistHinhAnh_detail;
     private Button btnXemTatCa_detail_travel, btnThemNhanXet_detail_travel;
 
@@ -150,6 +150,17 @@ public class ActivityDetailTravel extends AppCompatActivity {
                 }
             }
         });
+
+        btnShowMap_detail_Travel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundleMap = new Bundle();
+                bundleMap.putSerializable("DiaChi", travel.getDiaChi());
+                Intent intentMap=new Intent(ActivityDetailTravel.this, MapsActivity.class);
+                intentMap.putExtras(bundleMap);
+                ActivityDetailTravel.this.startActivity(intentMap);
+            }
+        });
     }
 
     private void LoadDialogListNhanXet()
@@ -205,11 +216,9 @@ public class ActivityDetailTravel extends AppCompatActivity {
         edtDanhGia_dialog_add_danhgia = dialog.findViewById(R.id.edtDanhGia_dialog_add_danhgia);
         tvTenNguoiDang_dialog_add_danhgia=dialog.findViewById(R.id.tvTenNguoiDang_dialog_add_danhgia);
 
-        Picasso picassoHotelDetail= Picasso.with(ActivityDetailTravel.this);
-        picassoHotelDetail.load(USER_TRAVEL_DETAIL.getAvarta()).resize(90, 90)
-                .placeholder(R.drawable.icon2)
-                .into(imgNguoiDang_dialog_add_danhgia);
-        picassoHotelDetail.invalidate(USER_TRAVEL_DETAIL.getAvarta());
+        String filePath="avarta/" + MainActivity.USER_.getAvarta();
+        StorageService.LoadImageUri_Avarta(filePath,imgNguoiDang_dialog_add_danhgia,
+                ActivityDetailTravel.this);
 
         tvTenNguoiDang_dialog_add_danhgia.setText(USER_TRAVEL_DETAIL.getFullName());
         dialog.show();
@@ -294,6 +303,7 @@ public class ActivityDetailTravel extends AppCompatActivity {
     }
     private void Init()
     {
+        btnShowMap_detail_Travel=findViewById(R.id.btnShowMap_detail_Travel);
         tvTieuDe_detail=findViewById(R.id.tvTieuDe_detail);
 
         tvTenNguoiDung_detail= findViewById(R.id.tvTenNguoiDung_detail);

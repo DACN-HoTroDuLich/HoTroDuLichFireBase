@@ -4,6 +4,9 @@
     package="com.example.cntt196_hotrodulichfirebase">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -15,6 +18,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CNTT196_HoTroDuLichFirebase"
         tools:targetApi="31">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyA2znm4Pa-8JNLf7djk3l8vk8AbZi7P9vA" />
+        <activity
+            android:name=".MapsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ActivityNewHotel"
+            android:exported="false" />
+        <activity
+            android:name=".ActivityNewTravel"
+            android:exported="false" />
         <activity
             android:name=".ActivityDetailHotel"
             android:exported="false" />

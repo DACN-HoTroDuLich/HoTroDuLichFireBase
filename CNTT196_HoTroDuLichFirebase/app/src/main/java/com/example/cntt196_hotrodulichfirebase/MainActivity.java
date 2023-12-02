@@ -52,8 +52,9 @@ public class MainActivity extends AppCompatActivity {
         this.USER_.setAuthor(false);
         this.USER_.setDateOfBirth(LocalDate.from(LocalDateTime.now()));
         this.USER_.setFullName("Võ Nguyễn Duy Tân");
-        this.USER_.setAvarta("https://firebasestorage.googleapis.com/v0/b/cntt196-hotrodulich.appspot.com/o/avarta%2Flisa.jpg?alt=media&token=041fad2b-a80d-4323-8c39-d912cceac3cf");
+        this.USER_.setAvarta("lisa.jpg");
         this.USER_.setIdentifier("duytantt9@gmail.com");
+        this.USER_.setUser_UID("UbH5oNtTWwWQWTD6ueqcBAih1yC3");
 
 
         if(savedInstanceState==null)
@@ -190,7 +191,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 dialog.dismiss();
-                Toast.makeText(MainActivity.this, "Them bai dang du lich", Toast.LENGTH_SHORT).show();
+                Intent intent =new Intent(MainActivity.this,ActivityNewTravel.class);
+                MainActivity.this.startActivity(intent);
+                //Toast.makeText(MainActivity.this, "Them bai dang du lich", Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -200,8 +203,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 dialog.dismiss();
-                Toast.makeText(MainActivity.this,"Them bài dang khách san",Toast.LENGTH_SHORT).show();
-
+                Intent intent =new Intent(MainActivity.this,ActivityNewHotel.class);
+                MainActivity.this.startActivity(intent);
+                //Toast.makeText(MainActivity.this,"Them bài dang khách san",Toast.LENGTH_SHORT).show();
             }
         });
 

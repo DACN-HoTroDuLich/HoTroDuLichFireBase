@@ -236,12 +236,18 @@ public class AdapterTravel extends BaseAdapter {
 
                 if(travel.getHinhAnhs()!=null)
                 {
+                    Log.e("Travel_AnhBia","=>"+travel.getHinhAnhs().size());
                     if(travel.getHinhAnhs().size()>0)
                     {
-                        Log.e("Travel_AnhBia","=>"+travel.getHinhAnhs().get(0));
+                        //Log.e("Travel_AnhBia","=>"+travel.getHinhAnhs().get(0));
                         String rootFile= "Travel/"+ travel.getID_Document()+"/"+travel.getHinhAnhs().get(0);
                         StorageService.LoadImageUri(rootFile,viewHolder.imgHinhAnhBaiDang_custom,context,1280,750);
                     }
+                }
+                else
+                {
+                    String rootFile= "default.png";
+                    StorageService.LoadImageUri(rootFile,viewHolder.imgHinhAnhBaiDang_custom,context,1280,750);
                 }
             }
 

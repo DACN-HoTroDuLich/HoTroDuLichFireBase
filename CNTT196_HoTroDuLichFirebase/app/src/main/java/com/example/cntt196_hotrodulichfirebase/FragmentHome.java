@@ -194,8 +194,11 @@ public class FragmentHome extends Fragment {
                                 travel.setMoTa(document.getString("MoTa"));
                                 travel.setDanhGias(null);
                                 travel.setDiaChi(document.getString("DiaChi"));
-                                travel.setGiaMax(document.getDouble("GiaMax"));
-                                travel.setGiaMin(document.getDouble("GiaMin"));
+
+                                Number numMax = (Number) document.get("GiaMax");
+                                Number numMin = (Number) document.get("GiaMin");
+                                travel.setGiaMax((long) Float.parseFloat(numMax.toString()));
+                                travel.setGiaMin((long)Float.parseFloat(numMin.toString()));
 
                                 ArrayList<String> dsHinh=new ArrayList<>();
                                 dsHinh= (ArrayList<String>) document.get("HinhAnh");
@@ -207,10 +210,7 @@ public class FragmentHome extends Fragment {
                                 travel.setNgayDang(timestamp.toDate().toInstant()
                                         .atZone(ZoneId.systemDefault()).toLocalDateTime());
 
-                                for(int i=0;i<15;i++)
-                                {
-                                    travelArrayList.add(travel);
-                                }
+                                travelArrayList.add(travel);
                                 adapterTravelHome.notifyDataSetChanged();
                             }
                         }

@@ -116,6 +116,7 @@ public class FragmentrTravel extends Fragment {
                              Bundle savedInstanceState) {
         arrayListTravel=new ArrayList<>();
         arrayListTinh=new ArrayList<>();
+        arrayListTinh.add("Tất cả");
         context=requireContext();
         mView= inflater.inflate(R.layout.fragment_fragmentr_travel, container, false);
         addControls(mView);
@@ -149,6 +150,7 @@ public class FragmentrTravel extends Fragment {
     {
         final int[] previousVisibleItem = {0};
         final int[] previousVisibleItemLast = {0};
+        //final int[] previousVisibleItemLastParent = {0};
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -157,7 +159,7 @@ public class FragmentrTravel extends Fragment {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (firstVisibleItem > previousVisibleItem[0]) {
+                if (firstVisibleItem > previousVisibleItemLast[0]) {
                     if(previousVisibleItem[0]<previousVisibleItemLast[0])
                     {
                         linearLayout_listTinh_fragmentTravel.startAnimation(animationIn);
@@ -166,9 +168,7 @@ public class FragmentrTravel extends Fragment {
                     lvTinh_ver2_fragmentTravel.setVisibility(View.VISIBLE);
                     linearLayout_listTinh_fragmentTravel.setVisibility(View.GONE);
                 }
-                else if(firstVisibleItem == previousVisibleItem[0])
-                {}
-                else if (firstVisibleItem < previousVisibleItem[0]) {
+                else if (firstVisibleItem < previousVisibleItemLast[0]) {
                     // Người dùng đang cuộn lên
                     if(previousVisibleItem[0]>previousVisibleItemLast[0])
                     {
@@ -179,6 +179,7 @@ public class FragmentrTravel extends Fragment {
                     linearLayout_listTinh_fragmentTravel.setVisibility(View.VISIBLE);
 
                 }
+                //previousVisibleItemLastParent[0]=previousVisibleItemLast[0];
                 previousVisibleItemLast[0]=previousVisibleItem[0];
                 previousVisibleItem[0] = firstVisibleItem;
             }
@@ -209,6 +210,7 @@ public class FragmentrTravel extends Fragment {
 
                                 Travel travel=new Travel();
                                 travel.setID_Document(document.getId());
+                                Log.d("IdTravel"," => " +  travel.getID_Document());
                                 Map<String,Object> subDocument=(Map<String,Object>) document.get("NguoiDang");
                                 Log.d("TravelNguoiDang"," => " +  subDocument);
                                 if(subDocument!=null)
@@ -223,8 +225,11 @@ public class FragmentrTravel extends Fragment {
                                 travel.setMoTa(document.getString("MoTa"));
                                 travel.setDanhGias(null);
                                 travel.setDiaChi(document.getString("DiaChi"));
-                                travel.setGiaMax(document.getDouble("GiaMax"));
-                                travel.setGiaMin(document.getDouble("GiaMin"));
+
+                                Number numMax = (Number) document.get("GiaMax");
+                                Number numMin = (Number) document.get("GiaMin");
+                                travel.setGiaMax((long) Float.parseFloat(numMax.toString()));
+                                travel.setGiaMin((long)Float.parseFloat(numMin.toString()));
 
                                 ArrayList<String> dsHinh=new ArrayList<>();
                                 dsHinh= (ArrayList<String>) document.get("HinhAnh");
@@ -236,15 +241,12 @@ public class FragmentrTravel extends Fragment {
                                 travel.setNgayDang(timestamp.toDate().toInstant()
                                         .atZone(ZoneId.systemDefault()).toLocalDateTime());
 
-                                for(int i=0;i<15;i++)
-                                {
-                                    arrayListTravel.add(travel);
-                                    arrayListTravel.add(travel);
-                                    arrayListTravel.add(travel);
-                                    arrayListTravel.add(travel);
-                                    String[] DiaChiSplit=travel.getDiaChi().split(",");
-                                    arrayListTinh.add(DiaChiSplit[DiaChiSplit.length-1]);
-                                }
+                                arrayListTravel.add(travel);
+                                arrayListTravel.add(travel);
+                                arrayListTravel.add(travel);
+                                String[] DiaChiSplit=travel.getDiaChi().split(",");
+                                arrayListTinh.add(DiaChiSplit[DiaChiSplit.length-1]);
+
                                 adapterTravel.notifyDataSetChanged();
                                 adapter_listview_tinh_ver1.notifyDataSetChanged();
                                 adapter_listview_tinh_ver2.notifyDataSetChanged();

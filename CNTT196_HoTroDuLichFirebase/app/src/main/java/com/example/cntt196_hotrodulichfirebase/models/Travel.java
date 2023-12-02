@@ -10,8 +10,8 @@ public class Travel implements Serializable {
     private String tieuDe;
     private String moTa;
     private String diaChi;
-    private double giaMax;
-    private double giaMin;
+    private long giaMax;
+    private long giaMin;
     private boolean trangThai;
     private NguoiDang nguoiDang;
     private LocalDateTime ngayDang;
@@ -61,19 +61,19 @@ public class Travel implements Serializable {
         this.diaChi = diaChi;
     }
 
-    public double getGiaMax() {
+    public long getGiaMax() {
         return giaMax;
     }
 
-    public void setGiaMax(double giaMax) {
+    public void setGiaMax(long giaMax) {
         this.giaMax = giaMax;
     }
 
-    public double getGiaMin() {
+    public long getGiaMin() {
         return giaMin;
     }
 
-    public void setGiaMin(double giaMin) {
+    public void setGiaMin(long giaMin) {
         this.giaMin = giaMin;
     }
 
@@ -132,7 +132,7 @@ public class Travel implements Serializable {
         this.ngayDang=LocalDateTime.now();
 
     }
-    public Travel(String ID_Document, String tieuDe, String moTa, String diaChi, double giaMax, double giaMin,
+    public Travel(String ID_Document, String tieuDe, String moTa, String diaChi, long giaMax, long giaMin,
                   boolean trangThai, NguoiDang nguoiDang, LocalDateTime ngayDang) {
         this.ID_Document = ID_Document;
         this.tieuDe = tieuDe;

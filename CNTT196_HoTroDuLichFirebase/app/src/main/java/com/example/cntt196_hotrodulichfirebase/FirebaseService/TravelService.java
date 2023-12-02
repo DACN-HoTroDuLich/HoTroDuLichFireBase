@@ -37,8 +37,12 @@ public class TravelService {
                                 travel.setMoTa(document.getString("MoTa"));
                                 travel.setDanhGias(null);
                                 travel.setDiaChi(document.getString("DiaChi"));
-                                travel.setGiaMax(document.getDouble("GiaMax"));
-                                travel.setGiaMin(document.getDouble("GiaMin"));
+
+                                Number numMax = (Number) document.get("GiaMax");
+                                Number numMin = (Number) document.get("GiaMin");
+                                travel.setGiaMax((long) Float.parseFloat(numMax.toString()));
+                                travel.setGiaMin((long)Float.parseFloat(numMin.toString()));
+
                                 travel.setHinhAnhs((ArrayList<String>) document.get("HinhAnh"));
 
                                 Timestamp timestamp=document.getTimestamp("NgayDang");

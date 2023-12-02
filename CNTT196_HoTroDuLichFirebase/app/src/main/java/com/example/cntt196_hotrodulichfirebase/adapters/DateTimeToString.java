@@ -13,6 +13,13 @@ public class DateTimeToString {
         String formattedDateTime = localDateTime.format(formatter);
         return  formattedDateTime;
     }
+    public static String GenarateID(String IdNguoiDung)
+    {
+        LocalDateTime localDateTime=LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+        String formattedDateTime = localDateTime.format(formatter);
+        return  IdNguoiDung + formattedDateTime;
+    }
     public static String FormatVND(double ChiPhi)
     {
         NumberFormat numberFormat = DecimalFormat.getCurrencyInstance( new Locale("vi", "VN"));

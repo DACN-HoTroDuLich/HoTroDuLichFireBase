@@ -50,8 +50,6 @@ public class AdapterHotel extends BaseAdapter {
     private ArrayList<Hotel> arrayListHotel;
     private Context context;
     private AdapterView.OnItemClickListener mListener;
-
-    // public AdapterHotel(QuerySnapshot queryDocumentSnapshots, Context context)
     public AdapterHotel(ArrayList<Hotel> arrayListHotel, Context context) {
         this.context = context;
         this.arrayListHotel = arrayListHotel;

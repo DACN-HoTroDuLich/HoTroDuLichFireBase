@@ -183,7 +183,7 @@
 
 
             <ImageButton
-                android:id="@+id/btnShowMap_detail"
+                android:id="@+id/btnShowMap_detail_Travel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/blue_light1"

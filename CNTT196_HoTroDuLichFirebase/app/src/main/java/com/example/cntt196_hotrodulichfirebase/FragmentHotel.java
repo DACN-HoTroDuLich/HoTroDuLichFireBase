@@ -118,6 +118,7 @@ public class FragmentHotel extends Fragment {
         // Inflate the layout for this fragment
         arrayListHotel=new ArrayList<>();
         arrayListTinh=new ArrayList<>();
+        arrayListTinh.add("Tất cả");
 
         mView = inflater.inflate(R.layout.fragment_hotel, container, false);
         context=requireContext();
@@ -238,9 +239,12 @@ public class FragmentHotel extends Fragment {
                                     for (Map<String,Object> objectMap:subArrayDocument)
                                     {
                                         Phong phong=new Phong();
-                                        phong.setGiaMax((long) objectMap.get("GiaMax"));
-                                        phong.setGiaMin((long) objectMap.get("GiaMin"));
-                                        phong.setSoGiuong((long) objectMap.get("SoGiuong"));
+                                        Number numMax = (Number) objectMap.get("GiaMax");
+                                        Number numMin = (Number) objectMap.get("GiaMin");
+                                        Number numSoGiuong= (Number)objectMap.get("SoGiuong");
+                                        phong.setGiaMax((long) Float.parseFloat(numMax.toString()));
+                                        phong.setGiaMin((long) Float.parseFloat(numMin.toString()));
+                                        phong.setSoGiuong((long) Float.parseFloat(numSoGiuong.toString()));
                                         phong.setHinhAnh((String) objectMap.get("HinhAnh"));
                                         dsPhong.add(phong);
                                     }
