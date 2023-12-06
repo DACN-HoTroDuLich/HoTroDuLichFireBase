@@ -16,6 +16,9 @@
         android:theme="@style/Theme.CNTT196_HoTroDuLichFirebase"
         tools:targetApi="31">
         <activity
+            android:name=".ActivityPostDetailAdmin"
+            android:exported="false" />
+        <activity
             android:name=".ActivityDetailHotel"
             android:exported="false" />
         <activity
