@@ -36,6 +36,12 @@
             android:name=".ActivityNewTravel"
             android:exported="false" />
         <activity
+            android:name=".ActivityPostDetailAdmin"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivityAdmin"
+            android:exported="false" />
+        <activity
             android:name=".ActivityDetailHotel"
             android:exported="false" />
         <activity
