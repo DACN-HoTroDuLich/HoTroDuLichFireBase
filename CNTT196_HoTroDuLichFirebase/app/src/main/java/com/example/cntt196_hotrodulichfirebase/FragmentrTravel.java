@@ -22,7 +22,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.cntt196_hotrodulichfirebase.adapters.AdapterTravel;
 import com.example.cntt196_hotrodulichfirebase.adapters.Adapter_listview_tinh_ver1;
 import com.example.cntt196_hotrodulichfirebase.adapters.Adapter_listview_tinh_ver2;
+import com.example.cntt196_hotrodulichfirebase.models.DanhGia;
 import com.example.cntt196_hotrodulichfirebase.models.HinhAnh;
+import com.example.cntt196_hotrodulichfirebase.models.HoiDap;
 import com.example.cntt196_hotrodulichfirebase.models.Hotel;
 import com.example.cntt196_hotrodulichfirebase.models.NguoiDang;
 import com.example.cntt196_hotrodulichfirebase.models.Travel;
@@ -123,8 +125,8 @@ public class FragmentrTravel extends Fragment {
         //dsTravel=new ArrayList<Travel>();
         adapterTravel=new AdapterTravel(arrayListTravel,context);
 
-        adapter_listview_tinh_ver1=new Adapter_listview_tinh_ver1(arrayListTinh,getContext());
-        adapter_listview_tinh_ver2=new Adapter_listview_tinh_ver2(arrayListTinh, getContext());
+        adapter_listview_tinh_ver1=new Adapter_listview_tinh_ver1(arrayListTinh,getContext(),listView,true);
+        adapter_listview_tinh_ver2=new Adapter_listview_tinh_ver2(arrayListTinh, getContext(), listView,true);
 
 
         lvTinh_ver2_fragmentTravel.setAdapter(adapter_listview_tinh_ver2);
@@ -142,6 +144,7 @@ public class FragmentrTravel extends Fragment {
         Animation animationOut= AnimationUtils.loadAnimation(context,R.anim.list_view_out);
         //lvTinh_fragmentTravel.startAnimation(animationIn);
         SetStateSrollListView(animationIn, animationOut);
+
 
         return mView;
     }
@@ -223,7 +226,86 @@ public class FragmentrTravel extends Fragment {
                                 }
                                 travel.setTieuDe(document.getString("TieuDe"));
                                 travel.setMoTa(document.getString("MoTa"));
-                                travel.setDanhGias(null);
+
+                                ArrayList<Map<String,Object>> subArrayDocumentDanhGia= (ArrayList<Map<String, Object>>) document.get("DanhGia");
+                                if(subArrayDocumentDanhGia!=null) {
+                                   if(subArrayDocumentDanhGia.size()>0)
+                                   {
+                                       Log.d("TravelNguoiDang"," => " +  subArrayDocumentDanhGia);
+                                       ArrayList<DanhGia> dsDanhGia = new ArrayList<>();
+                                       for (Map<String, Object> objectMap : subArrayDocumentDanhGia) {
+                                           DanhGia danhGia = new DanhGia();
+                                           danhGia.setMaNguoiDanhGia((String) objectMap.get("MaNguoiDanhGia"));
+                                           //lay bien thoi gian kieu timestamp
+                                           Timestamp DanhGiatimestamp = (Timestamp) objectMap.get("NgayDang");
+                                           //convert sang localdatetime
+                                           danhGia.setNgayDang(DanhGiatimestamp.toDate().toInstant()
+                                                   .atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+                                           danhGia.setTenNguoiDanhGia((String) objectMap.get("TenNguoiDanhGia"));
+                                           danhGia.setRate((Long) objectMap.get("Rate"));
+                                           Log.e("Rate", "=>" + danhGia.getRate());
+                                           danhGia.setNoiDung((String) objectMap.get("NoiDungDanhGia"));
+                                           danhGia.setImgNguoiDang((String) objectMap.get("avartaNguoiDanhGia"));
+                                           dsDanhGia.add(danhGia);
+                                       }
+                                       travel.setDanhGias(dsDanhGia);
+                                   }
+                                }
+
+                                ArrayList<Map<String,Object>> subArrayDocumentHoiDap=
+                                        (ArrayList<Map<String, Object>>) document.get("HoiDap");
+                                if(subArrayDocumentHoiDap!=null)
+                                {
+                                    if(subArrayDocumentHoiDap.size()>0)
+                                    {
+                                        ArrayList<HoiDap> dsHoiDap=new ArrayList<>();
+                                        for (Map<String,Object> objectMap:subArrayDocumentHoiDap)
+                                        {
+                                            HoiDap hoiDap=new HoiDap();
+                                            hoiDap.setMaHoiDap((String) objectMap.get("MaHoiDap"));
+                                            hoiDap.setMaNguoiHoi((String)objectMap.get("MaNguoiHoi"));
+                                            //lay bien thoi gian kieu timestamp
+                                            Timestamp DanhGiatimestamp= (Timestamp) objectMap.get("NgayHoi");
+                                            //convert sang localdatetime
+                                            hoiDap.setNgayHoi(DanhGiatimestamp.toDate().toInstant()
+                                                    .atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+                                            hoiDap.setTenNguoiHoi((String) objectMap.get("TenNguoiHoi"));
+                                            hoiDap.setNoiDungHoiDap((String) objectMap.get("NoiDungHoiDap"));
+                                            hoiDap.setImgNguoiHoi((String)objectMap.get("avartaNguoiHoi"));
+
+                                            ArrayList<Map<String,Object>> subArrayDocumentTraLoiHoiDap=
+                                                    (ArrayList<Map<String, Object>>) objectMap.get("TraLoi");
+                                            if(subArrayDocumentTraLoiHoiDap!=null)
+                                            {
+                                                ArrayList<HoiDap> dsTraLoi=new ArrayList<>();
+                                                for (Map<String,Object> objectMapTraLoi : subArrayDocumentTraLoiHoiDap)
+                                                {
+                                                    HoiDap traloi=new HoiDap();
+                                                    traloi.setMaHoiDap((String) objectMapTraLoi.get("MaCauTraLoi"));
+                                                    traloi.setMaNguoiHoi((String)objectMapTraLoi.get("MaNguoiTraLoi"));
+                                                    //lay bien thoi gian kieu timestamp
+                                                    Timestamp DanhGiatimestampTraLoi= (Timestamp) objectMapTraLoi.get("NgayTraLoi");
+                                                    //convert sang localdatetime
+                                                    traloi.setNgayHoi(DanhGiatimestampTraLoi.toDate().toInstant()
+                                                            .atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+                                                    traloi.setTenNguoiHoi((String) objectMapTraLoi.get("TenNguoiTraLoi"));
+                                                    traloi.setImgNguoiHoi((String)objectMapTraLoi.get("avartaNguoiHoi"));
+                                                    traloi.setNoiDungHoiDap((String) objectMapTraLoi.get("NoiDungTraLoi"));
+                                                    dsTraLoi.add(traloi);
+                                                }
+                                                hoiDap.setTraLois(dsTraLoi);
+                                            }
+
+                                            dsHoiDap.add(hoiDap);
+                                        }
+                                        travel.setHoiDaps(dsHoiDap);
+                                    }
+
+                                }
+
                                 travel.setDiaChi(document.getString("DiaChi"));
 
                                 Number numMax = (Number) document.get("GiaMax");

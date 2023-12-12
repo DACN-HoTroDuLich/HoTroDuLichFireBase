@@ -89,7 +89,7 @@
                 android:textColor="@color/blue_light1"
                 android:gravity="left|center"/>
             <RatingBar
-                android:id="@+id/ratingBar_custom"
+                android:id="@+id/ratingBar_custom_travel"
                 android:layout_marginTop="5dp"
                 android:layout_width="wrap_content"
                 android:scaleX="1"
@@ -97,7 +97,7 @@
                 android:scaleY="1"
                 android:layout_height="120px"
                 android:numStars="5"
-                android:isIndicator="true"
+                android:isIndicator="false"
                 style="@android:style/Widget.Holo.RatingBar"
                 android:backgroundTint="@color/blue_light1"/>
         </LinearLayout>

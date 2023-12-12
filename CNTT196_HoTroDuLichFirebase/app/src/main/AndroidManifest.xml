@@ -18,14 +18,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CNTT196_HoTroDuLichFirebase"
         tools:targetApi="31">
+        <activity
+            android:name=".ActivityGetStared"
+            android:exported="false" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyA2znm4Pa-8JNLf7djk3l8vk8AbZi7P9vA" />
+
         <activity
             android:name=".MapsActivity"
             android:exported="false" />
-
         <activity
             android:name=".ActivityNewHotel"
             android:exported="false" />

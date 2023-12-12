@@ -95,7 +95,7 @@ public class AdapterTravel extends BaseAdapter {
             viewHolder.tvCountFavorite=view.findViewById(R.id.tvCountFavorite);
             viewHolder.imgNguoiDung_custom=view.findViewById(R.id.imgNguoiDung_custom);
             viewHolder.imgHinhAnhBaiDang_custom=view.findViewById(R.id.imgHinhAnhBaiDang_custom);
-            viewHolder.ratingBar_custom=view.findViewById(R.id.ratingBar_custom);
+            viewHolder.ratingBar_custom=view.findViewById(R.id.ratingBar_custom_travel);
             viewHolder.btnFavorite_custom=view.findViewById(R.id.btnFavorite_custom);
             viewHolder.btnXemChiTiet_custom=view.findViewById(R.id.btnXemChiTiet_custom);
 
@@ -123,7 +123,7 @@ public class AdapterTravel extends BaseAdapter {
                     for (DanhGia danhGia : travel.getDanhGias()) {
                         rate += danhGia.getRate();
                     }
-                    rate = rate / travel.getDanhGias().size();
+                    rate =  Math.round(rate / travel.getDanhGias().size() * 10) / 10f; ;
                     viewHolder.ratingBar_custom.setRating(rate);
                 }
 
@@ -145,7 +145,7 @@ public class AdapterTravel extends BaseAdapter {
                 else
                 {
                     viewHolder.btnFavorite_custom.setImageResource(R.drawable.baseline_volunteer_activism_24_0);
-                    viewHolder.ratingBar_custom.setRating(0);
+                    //viewHolder.ratingBar_custom.setRating(0);
                     viewHolder.btnFavorite_custom.setTag(R.drawable.baseline_volunteer_activism_24_0);
                     viewHolder.tvCountFavorite.setText("");}
 
@@ -212,6 +212,17 @@ public class AdapterTravel extends BaseAdapter {
                 viewHolder.tvMoTa.setText((travel.getMoTa().length()>200)? ("Mô tả: "+travel.getMoTa().substring(0,200)
                         +"..."):("Mô tả: "+travel.getMoTa()));
                 viewHolder.tvDiaChi.setText("Địa chỉ: "+travel.getDiaChi());
+
+                if(travel.getDanhGias()!=null)
+                {
+                    float rate = 0;
+                    for (DanhGia danhGia : travel.getDanhGias()) {
+                        rate += danhGia.getRate();
+                    }
+                    rate =  Math.round(rate / travel.getDanhGias().size() * 10) / 10f; ;
+                    viewHolder.ratingBar_custom.setRating(rate);
+                }
+
                 if(travel.getGiaMax()==0&&travel.getGiaMin()==0)
                 { viewHolder.tvGia.setText("Miễn phí vé tham quan");}
                 else
@@ -230,7 +241,7 @@ public class AdapterTravel extends BaseAdapter {
                 else
                 {
                     viewHolder.btnFavorite_custom.setImageResource(R.drawable.baseline_volunteer_activism_24_0);
-                    viewHolder.ratingBar_custom.setRating(0);
+                    //viewHolder.ratingBar_custom.setRating(0);
                     viewHolder.btnFavorite_custom.setTag(R.drawable.baseline_volunteer_activism_24_0);
                     viewHolder.tvCountFavorite.setText("");}
 

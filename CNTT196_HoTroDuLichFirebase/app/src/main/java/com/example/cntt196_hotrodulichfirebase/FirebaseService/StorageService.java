@@ -37,7 +37,7 @@ public class StorageService {
                                 .placeholder(R.drawable.default_image_empty)
                                 .into(imageView);
                         picasso.invalidate(uri);
-
+                        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

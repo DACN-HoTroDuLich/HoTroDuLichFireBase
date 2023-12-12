@@ -3,12 +3,15 @@ package com.example.cntt196_hotrodulichfirebase;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
@@ -16,11 +19,15 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.cntt196_hotrodulichfirebase.FirebaseService.StorageService;
+import com.example.cntt196_hotrodulichfirebase.FirebaseService.TinhService;
+import com.example.cntt196_hotrodulichfirebase.adapters.AdapterSlideFragmentHome;
 import com.example.cntt196_hotrodulichfirebase.adapters.AdapterTravel;
 import com.example.cntt196_hotrodulichfirebase.adapters.AdapterTravelHome;
 import com.example.cntt196_hotrodulichfirebase.models.NguoiDang;
+import com.example.cntt196_hotrodulichfirebase.models.TinhModel;
 import com.example.cntt196_hotrodulichfirebase.models.Travel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -29,12 +36,16 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Random;
+
+import me.relex.circleindicator.CircleIndicator3;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -55,17 +66,20 @@ public class FragmentHome extends Fragment {
     private View mView;
     private ImageButton btn_Previous_frgHome, btn_Next_frgHome;
     private RecyclerView recyclerview_hotel_frgHome, recyclerview_travel_frgHome;
-    private ImageView img5_Flipper_frgHome, img4_Flipper_frgHome
-    ,img3_Flipper_frgHome, img2_Flipper_frgHome, img1_Flipper_frgHome;
-    private ViewFlipper viewFlipper;
 
+    private ImageView imgTablelayout_fraHome;
+    private ViewPager2 viewPager2_frgHome;
+    private CircleIndicator3 circleIndicator3_frgHome;
+    private TableLayout tablelayout_frgHome;
 
 
 
 
     private Context context;
     private AdapterTravelHome adapterTravelHome;
+    private AdapterSlideFragmentHome adapterSlideFragmentHome;
     private ArrayList<Travel> travelArrayList;
+    Handler handler_viewPager=new Handler();
     public FragmentHome() {
         // Required empty public constructor
     }
@@ -116,51 +130,53 @@ public class FragmentHome extends Fragment {
                 , LinearLayoutManager.HORIZONTAL, false));
 
         LoadListTravel();
+        LoadGalery();
         return mView;
     }
 
     private void LoadListSlider() {
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference();
+//        FirebaseStorage storage = FirebaseStorage.getInstance();
+//        StorageReference storageRef = storage.getReference();
         String[] slideIntros= {"dulich1.jpg","dulich2.jpg","dulich3.jpg","dulich4.jpg","dulich5.jpg"};
-        ArrayList<String> slideIntrosLink=new ArrayList<>();
+        adapterSlideFragmentHome=new AdapterSlideFragmentHome(slideIntros,context);
+        viewPager2_frgHome.setAdapter(adapterSlideFragmentHome);
+        circleIndicator3_frgHome.setViewPager(viewPager2_frgHome);
 
-        String rootFile1= "SlideIntro/"+ slideIntros[0];
-        StorageService.LoadImageUri(rootFile1,img1_Flipper_frgHome,context,1280,570);
 
-        String rootFile2= "SlideIntro/"+ slideIntros[1];
-        StorageService.LoadImageUri(rootFile2,img2_Flipper_frgHome,context,1280,570);
+        handler_viewPager.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                int indexCurrentSlide=viewPager2_frgHome.getCurrentItem();
+                viewPager2_frgHome.setCurrentItem(indexCurrentSlide+1);
+            }
+        },3000);
 
-        String rootFile3= "SlideIntro/"+ slideIntros[2];
-        StorageService.LoadImageUri(rootFile3,img3_Flipper_frgHome,context,1280,570);
-
-        String rootFile4= "SlideIntro/"+ slideIntros[3];
-        StorageService.LoadImageUri(rootFile4,img4_Flipper_frgHome,context,1280,570);
-
-        String rootFile5= "SlideIntro/"+ slideIntros[4];
-        StorageService.LoadImageUri(rootFile5,img5_Flipper_frgHome,context,1280,570);
-
-        viewFlipper.setAutoStart(true);
         btn_Previous_frgHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                viewFlipper.setInAnimation(context,
-                        R.anim.slide_left_to_right);
-                viewFlipper.setOutAnimation(context,
-                        R.anim.slide_right_to_left);
-
-                // It shows previous item.
-                viewFlipper.showPrevious();
+               int indexViewPagerCurrent=viewPager2_frgHome.getCurrentItem();
+               if(indexViewPagerCurrent-1<0)
+               {
+                   viewPager2_frgHome.setCurrentItem(slideIntros.length);
+               }
+               else
+               {
+                   viewPager2_frgHome.setCurrentItem(indexViewPagerCurrent-1);
+               }
             }
         });
         btn_Next_frgHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                viewFlipper.setInAnimation(context,
-                        R.anim.slide_right_to_left);
-                viewFlipper.setOutAnimation(context,
-                        R.anim.slide_left_to_right);
-                viewFlipper.showNext();
+                int indexViewPagerCurrent=viewPager2_frgHome.getCurrentItem()+1;
+                if(indexViewPagerCurrent> slideIntros.length-1)
+                {
+                    viewPager2_frgHome.setCurrentItem(0);
+                }
+                else
+                {
+                    viewPager2_frgHome.setCurrentItem(indexViewPagerCurrent);
+                }
             }
         });
     }
@@ -218,17 +234,53 @@ public class FragmentHome extends Fragment {
                     }
                 });
     }
+    private void LoadGalery()
+    {
+        ArrayList<String> dsTinh= TinhService.getAllTinh();
+        for (int i=0;i<tablelayout_frgHome.getChildCount();i++)
+        {
+            View row=tablelayout_frgHome.getChildAt(i);
+            if(row instanceof TableRow)
+            {
+                TableRow tableRow = (TableRow) row;
+                TableRow.LayoutParams layoutParams = new TableRow.LayoutParams(0,
+                        TableRow.LayoutParams.WRAP_CONTENT, 1f);
+                layoutParams.setMargins(4, 4, 4,4);
+                ImageView imageView1=new ImageView(context);
+                ImageView imageView2=new ImageView(context);
+                ImageView imageView3=new ImageView(context);
+                imageView1.setLayoutParams(layoutParams);
+                imageView2.setLayoutParams(layoutParams);
+                imageView3.setLayoutParams(layoutParams);
+                tableRow.addView(imageView1);
+                tableRow.addView(imageView2);
+                tableRow.addView(imageView3);
+                Random random=new Random();
+                int indexImage1=random.nextInt(dsTinh.size());
+                int indexImage2=random.nextInt(dsTinh.size());
+                int indexImage3=random.nextInt(dsTinh.size());
+                String rootFile1= "SlideIntro/Tinh/"+ dsTinh.get(indexImage1)+".jpg";
+                Log.e("Table",rootFile1);
+                String rootFile2= "SlideIntro/Tinh/"+ dsTinh.get(indexImage2)+".jpg";
+                Log.e("Table",rootFile2);
+                String rootFile3= "SlideIntro/Tinh/"+ dsTinh.get(indexImage3)+".jpg";
+                Log.e("Table",rootFile3);
+                StorageService.LoadImageUri(rootFile1,imageView1,context,480,360);
+                StorageService.LoadImageUri(rootFile2,imageView2,context,480,360);
+                StorageService.LoadImageUri(rootFile3,imageView3,context,480,360);
+            }
+        }
+    }
     private void Init(View view)
     {
         btn_Previous_frgHome= view.findViewById(R.id.btn_Previous_frgHome);
         btn_Next_frgHome= view.findViewById(R.id.btn_Next_frgHome);
-        viewFlipper=view.findViewById(R.id.viewFlipper);
+
         recyclerview_hotel_frgHome= view.findViewById(R.id.recyclerview_hotel_frgHome);
         recyclerview_travel_frgHome= view.findViewById(R.id.recyclerview_travel_frgHome);
-        img5_Flipper_frgHome= view.findViewById(R.id.img5_Flipper_frgHome);
-        img4_Flipper_frgHome= view.findViewById(R.id.img4_Flipper_frgHome);
-        img3_Flipper_frgHome= view.findViewById(R.id.img3_Flipper_frgHome);
-        img2_Flipper_frgHome= view.findViewById(R.id.img2_Flipper_frgHome);
-        img1_Flipper_frgHome= view.findViewById(R.id.img1_Flipper_frgHome);
+        viewPager2_frgHome= view.findViewById(R.id.viewPager2_frgHome);
+        circleIndicator3_frgHome=view.findViewById(R.id.circleIndicator3_frgHome);
+        tablelayout_frgHome=view.findViewById(R.id.tablelayout_frgHome);
+        imgTablelayout_fraHome=view.findViewById(R.id.imgTablelayout_fraHome);
     }
 }
