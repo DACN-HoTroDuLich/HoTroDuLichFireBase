@@ -18,7 +18,9 @@
                 android:id="@+id/imagePhong_custom_phong"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/dulich5" />
+                android:background="@android:color/transparent"
+                android:src="@drawable/dulich5"
+                android:scaleType="centerCrop"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

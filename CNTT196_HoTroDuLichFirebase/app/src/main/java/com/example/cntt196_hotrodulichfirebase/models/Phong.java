@@ -1,5 +1,8 @@
 package com.example.cntt196_hotrodulichfirebase.models;
 
+import android.graphics.Bitmap;
+import android.net.Uri;
+
 import java.io.Serializable;
 
 public class Phong implements Serializable {
@@ -7,8 +10,27 @@ public class Phong implements Serializable {
     private long giaMin;
     private long soGiuong;
     private String hinhAnh;
+    private Bitmap bitmapHinhAnh;
 
-    public double getGiaMax() {
+    public Bitmap getBitmapHinhAnh() {
+        return bitmapHinhAnh;
+    }
+
+    public void setBitmapHinhAnh(Bitmap bitmapHinhAnh) {
+        this.bitmapHinhAnh = bitmapHinhAnh;
+    }
+
+    private Uri uri;
+
+    public Uri getUri() {
+        return uri;
+    }
+
+    public void setUri(Uri uri) {
+        this.uri = uri;
+    }
+
+    public long getGiaMax() {
         return giaMax;
     }
 
@@ -16,7 +38,7 @@ public class Phong implements Serializable {
         this.giaMax = giaMax;
     }
 
-    public double getGiaMin() {
+    public long getGiaMin() {
         return giaMin;
     }
 

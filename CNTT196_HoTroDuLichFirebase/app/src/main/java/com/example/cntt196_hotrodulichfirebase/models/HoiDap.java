@@ -11,7 +11,7 @@ public class HoiDap implements Serializable {
     private String imgNguoiHoi;
     private String noiDungHoiDap;
     private LocalDateTime ngayHoi;
-    private ArrayList<TraLoi> traLois;
+    private ArrayList<HoiDap> traLois;
 
     public String getImgNguoiHoi() {
         return imgNguoiHoi;
@@ -41,9 +41,10 @@ public class HoiDap implements Serializable {
         return ngayHoi;
     }
 
-    public ArrayList<TraLoi> getTraLois() {
+    public ArrayList<HoiDap> getTraLois() {
         return traLois;
     }
+
 
     public void setMaHoiDap(String maHoiDap) {
         this.maHoiDap = maHoiDap;
@@ -65,7 +66,7 @@ public class HoiDap implements Serializable {
         this.ngayHoi = ngayHoi;
     }
 
-    public void setTraLois(ArrayList<TraLoi> traLois) {
+    public void setTraLois(ArrayList<HoiDap> traLois) {
         this.traLois = traLois;
     }
 

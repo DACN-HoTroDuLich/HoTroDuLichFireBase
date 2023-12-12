@@ -30,6 +30,7 @@ import com.example.cntt196_hotrodulichfirebase.adapters.AdapterTravel;
 import com.example.cntt196_hotrodulichfirebase.adapters.Adapter_listview_tinh_ver1;
 import com.example.cntt196_hotrodulichfirebase.adapters.Adapter_listview_tinh_ver2;
 import com.example.cntt196_hotrodulichfirebase.models.DanhGia;
+import com.example.cntt196_hotrodulichfirebase.models.HoiDap;
 import com.example.cntt196_hotrodulichfirebase.models.Hotel;
 import com.example.cntt196_hotrodulichfirebase.models.LuotThich;
 import com.example.cntt196_hotrodulichfirebase.models.NguoiDang;
@@ -118,6 +119,7 @@ public class FragmentHotel extends Fragment {
         // Inflate the layout for this fragment
         arrayListHotel=new ArrayList<>();
         arrayListTinh=new ArrayList<>();
+        arrayListTinh.add("Tất cả");
 
         mView = inflater.inflate(R.layout.fragment_hotel, container, false);
         context=requireContext();
@@ -126,8 +128,8 @@ public class FragmentHotel extends Fragment {
 //        StorageService.LoadImageUri(rootFileImgIntro, imageIntro_fragmentHotel,context,1580,720);
 
         adapterHotel=new AdapterHotel(arrayListHotel,getContext());
-        adapter_listview_tinh_ver1=new Adapter_listview_tinh_ver1(arrayListTinh,getContext());
-        adapter_listview_tinh_ver2=new Adapter_listview_tinh_ver2(arrayListTinh, getContext());
+        adapter_listview_tinh_ver1=new Adapter_listview_tinh_ver1(arrayListTinh,getContext(),listView,false);
+        adapter_listview_tinh_ver2=new Adapter_listview_tinh_ver2(arrayListTinh, getContext(),listView,false);
         listView.setAdapter(adapterHotel);
 
         lvTinh_ver2_fragmentHotel.setAdapter(adapter_listview_tinh_ver2);
@@ -234,15 +236,21 @@ public class FragmentHotel extends Fragment {
                                 ArrayList<Map<String,Object>> subArrayDocument= (ArrayList<Map<String, Object>>) document.get("Phong");
                                 if(subArrayDocument!=null)
                                 {
-                                    Log.e("subArrayDocument","=>"+subArrayDocument);
-                                    for (Map<String,Object> objectMap:subArrayDocument)
+                                    if(subArrayDocument.size()>0)
                                     {
-                                        Phong phong=new Phong();
-                                        phong.setGiaMax((long) objectMap.get("GiaMax"));
-                                        phong.setGiaMin((long) objectMap.get("GiaMin"));
-                                        phong.setSoGiuong((long) objectMap.get("SoGiuong"));
-                                        phong.setHinhAnh((String) objectMap.get("HinhAnh"));
-                                        dsPhong.add(phong);
+                                        Log.e("subArrayDocument","=>"+subArrayDocument);
+                                        for (Map<String,Object> objectMap:subArrayDocument)
+                                        {
+                                            Phong phong=new Phong();
+                                            Number numMax = (Number) objectMap.get("GiaMax");
+                                            Number numMin = (Number) objectMap.get("GiaMin");
+                                            Number numSoGiuong= (Number)objectMap.get("SoGiuong");
+                                            phong.setGiaMax((long) Float.parseFloat(numMax.toString()));
+                                            phong.setGiaMin((long) Float.parseFloat(numMin.toString()));
+                                            phong.setSoGiuong((long) Float.parseFloat(numSoGiuong.toString()));
+                                            phong.setHinhAnh((String) objectMap.get("HinhAnh"));
+                                            dsPhong.add(phong);
+                                        }
                                     }
                                 }
                                 hotel.setPhongs(dsPhong);
@@ -251,25 +259,80 @@ public class FragmentHotel extends Fragment {
                                 ArrayList<Map<String,Object>> subArrayDocumentDanhGia= (ArrayList<Map<String, Object>>) document.get("DanhGia");
                                 if(subArrayDocumentDanhGia!=null)
                                 {
-                                    ArrayList<DanhGia> dsDanhGia=new ArrayList<>();
-                                    for (Map<String,Object> objectMap:subArrayDocumentDanhGia)
+                                    if(subArrayDocumentDanhGia.size()>0)
                                     {
-                                        DanhGia danhGia=new DanhGia();
-                                        danhGia.setMaNguoiDanhGia((String) objectMap.get("MaNguoiDanhGia"));
-                                        //lay bien thoi gian kieu timestamp
-                                        Timestamp DanhGiatimestamp= (Timestamp) objectMap.get("NgayDang");
-                                        //convert sang localdatetime
-                                        danhGia.setNgayDang(DanhGiatimestamp.toDate().toInstant()
-                                                .atZone(ZoneId.systemDefault()).toLocalDateTime());
+                                        ArrayList<DanhGia> dsDanhGia=new ArrayList<>();
+                                        for (Map<String,Object> objectMap:subArrayDocumentDanhGia)
+                                        {
+                                            DanhGia danhGia=new DanhGia();
+                                            danhGia.setMaNguoiDanhGia((String) objectMap.get("MaNguoiDanhGia"));
+                                            //lay bien thoi gian kieu timestamp
+                                            Timestamp DanhGiatimestamp= (Timestamp) objectMap.get("NgayDang");
+                                            //convert sang localdatetime
+                                            danhGia.setNgayDang(DanhGiatimestamp.toDate().toInstant()
+                                                    .atZone(ZoneId.systemDefault()).toLocalDateTime());
 
-                                        danhGia.setTenNguoiDanhGia((String) objectMap.get("TenNguoiDanhGia"));
-                                        danhGia.setRate((Long) objectMap.get("Rate"));
-                                        Log.e("Rate","=>"+danhGia.getRate());
-                                        danhGia.setNoiDung((String) objectMap.get("NoiDungDanhGia"));
-                                        danhGia.setImgNguoiDang((String) objectMap.get("avartaNguoiDanhGia"));
-                                        dsDanhGia.add(danhGia);
+                                            danhGia.setTenNguoiDanhGia((String) objectMap.get("TenNguoiDanhGia"));
+                                            danhGia.setRate((Long) objectMap.get("Rate"));
+                                            Log.e("Rate","=>"+danhGia.getRate());
+                                            danhGia.setNoiDung((String) objectMap.get("NoiDungDanhGia"));
+                                            danhGia.setImgNguoiDang((String) objectMap.get("avartaNguoiDanhGia"));
+                                            dsDanhGia.add(danhGia);
+                                        }
+                                        hotel.setDanhGias(dsDanhGia);
                                     }
-                                    hotel.setDanhGias(dsDanhGia);
+                                }
+
+                                ArrayList<Map<String,Object>> subArrayDocumentHoiDap=
+                                        (ArrayList<Map<String, Object>>) document.get("HoiDap");
+                                if(subArrayDocumentHoiDap!=null)
+                                {
+                                    if(subArrayDocumentHoiDap.size()>0)
+                                    {
+                                        ArrayList<HoiDap> dsHoiDap=new ArrayList<>();
+                                        for (Map<String,Object> objectMap:subArrayDocumentHoiDap)
+                                        {
+                                            HoiDap hoiDap=new HoiDap();
+                                            hoiDap.setMaHoiDap((String) objectMap.get("MaHoiDap"));
+                                            hoiDap.setMaNguoiHoi((String)objectMap.get("MaNguoiHoi"));
+                                            //lay bien thoi gian kieu timestamp
+                                            Timestamp DanhGiatimestamp= (Timestamp) objectMap.get("NgayHoi");
+                                            //convert sang localdatetime
+                                            hoiDap.setNgayHoi(DanhGiatimestamp.toDate().toInstant()
+                                                    .atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+                                            hoiDap.setTenNguoiHoi((String) objectMap.get("TenNguoiHoi"));
+                                            hoiDap.setNoiDungHoiDap((String) objectMap.get("NoiDungHoiDap"));
+                                            hoiDap.setImgNguoiHoi((String)objectMap.get("avartaNguoiHoi"));
+
+                                            ArrayList<Map<String,Object>> subArrayDocumentTraLoiHoiDap=
+                                                    (ArrayList<Map<String, Object>>) objectMap.get("TraLoi");
+                                            if(subArrayDocumentTraLoiHoiDap!=null)
+                                            {
+                                                ArrayList<HoiDap> dsTraLoi=new ArrayList<>();
+                                                for (Map<String,Object> objectMapTraLoi : subArrayDocumentTraLoiHoiDap)
+                                                {
+                                                    HoiDap traloi=new HoiDap();
+                                                    traloi.setMaHoiDap((String) objectMapTraLoi.get("MaCauTraLoi"));
+                                                    traloi.setMaNguoiHoi((String)objectMapTraLoi.get("MaNguoiTraLoi"));
+                                                    //lay bien thoi gian kieu timestamp
+                                                    Timestamp DanhGiatimestampTraLoi= (Timestamp) objectMapTraLoi.get("NgayTraLoi");
+                                                    //convert sang localdatetime
+                                                    traloi.setNgayHoi(DanhGiatimestampTraLoi.toDate().toInstant()
+                                                            .atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+                                                    traloi.setTenNguoiHoi((String) objectMapTraLoi.get("TenNguoiTraLoi"));
+                                                    traloi.setImgNguoiHoi((String)objectMapTraLoi.get("avartaNguoiHoi"));
+                                                    traloi.setNoiDungHoiDap((String) objectMapTraLoi.get("NoiDungTraLoi"));
+                                                    dsTraLoi.add(traloi);
+                                                }
+                                                hoiDap.setTraLois(dsTraLoi);
+                                            }
+
+                                            dsHoiDap.add(hoiDap);
+                                        }
+                                        hotel.setHoiDaps(dsHoiDap);
+                                    }
                                 }
 
 

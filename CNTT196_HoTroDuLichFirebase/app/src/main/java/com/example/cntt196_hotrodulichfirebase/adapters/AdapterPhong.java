@@ -1,6 +1,8 @@
 package com.example.cntt196_hotrodulichfirebase.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,12 +30,14 @@ public class AdapterPhong extends RecyclerView.Adapter<AdapterPhong.ViewHolder> 
     private LayoutInflater inflater;
     private View mView;
     private String Id_Document;
+    private boolean setImageIsBitmap;
 
-    public AdapterPhong(ArrayList<Phong> arrayListPhong,Context context, String Id_document)
+    public AdapterPhong(ArrayList<Phong> arrayListPhong,Context context, String Id_document,boolean setImageIsBitmap)
     {
         this.context=context;
         this.arrayListPhong=arrayListPhong;
         this.Id_Document=Id_document;
+        this.setImageIsBitmap=setImageIsBitmap;
         this.inflater= LayoutInflater.from(context);
     }
 
@@ -50,19 +54,48 @@ public class AdapterPhong extends RecyclerView.Adapter<AdapterPhong.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Phong phong=arrayListPhong.get(position);
-        if (phong.getHinhAnh() != null) {
-            String rootFile= "Hotel/"+ Id_Document+"/"+phong.getHinhAnh();
-            StorageService.LoadImageUri(rootFile,holder.imagePhong_custom_phong,context,1300,750);
+        if(setImageIsBitmap==true)
+        {
+            if (phong.getBitmapHinhAnh() != null) {
+                holder.imagePhong_custom_phong.setImageBitmap(phong.getBitmapHinhAnh());
 
-            holder.tvSoGiuong_custom_phong.setText("Phòng "+phong.getSoGiuong()+" giường");
-            if(phong.getGiaMax()==0)
-            {
-                holder.tvGia_hotel_custom.setText("Giá phòng không xác định");
+                if(phong.getSoGiuong()==3)
+                {
+                    holder.tvSoGiuong_custom_phong.setText("Số lượng giường không xác định");
+                }
+                else
+                {
+                    holder.tvSoGiuong_custom_phong.setText("Phòng "+phong.getSoGiuong()+" giường");
+                }
+
+                if(phong.getGiaMax()==0)
+                {
+                    holder.tvGia_hotel_custom.setText("Giá phòng không xác định");
+                }
+                else
+                {
+                    holder.tvGia_hotel_custom.setText("Giá phòng từ "+DateTimeToString.FormatVND(phong.getGiaMin())+" đến "
+                            +DateTimeToString.FormatVND(phong.getGiaMax()));
+                }
             }
-            else
-            {
-                holder.tvGia_hotel_custom.setText("Giá phòng từ "+DateTimeToString.FormatVND(phong.getGiaMin())+" đến "
-                        +DateTimeToString.FormatVND(phong.getGiaMax()));
+
+        }
+        else
+        {
+            if (phong.getHinhAnh() != null) {
+                String rootFile= "Hotel/"+ Id_Document+"/"+phong.getHinhAnh();
+                StorageService.LoadImageUri(rootFile,holder.imagePhong_custom_phong,context,1300,750);
+
+                holder.tvSoGiuong_custom_phong.setText("Phòng "+phong.getSoGiuong()+" giường");
+                if(phong.getGiaMax()==0)
+                {
+                    holder.tvGia_hotel_custom.setText("Giá phòng không xác định");
+                }
+                else
+                {
+                    holder.tvGia_hotel_custom.setText("Giá phòng từ "+DateTimeToString.FormatVND(phong.getGiaMin())+" đến "
+                            +DateTimeToString.FormatVND(phong.getGiaMax()));
+                }
             }
         }
     }

@@ -61,7 +61,7 @@ public class Adapter_listview_images_ver1 extends RecyclerView.Adapter<Adapter_l
     public void onBindViewHolder(@NonNull Adapter_listview_images_ver1.MyViewHolder holder, int position) {
 
         String rootFile=((IsTravel==true)?"Travel/": "Hotel/")+ Id_Document+"/"+dsHinh.get(position);
-        StorageService.LoadImageUri(rootFile,holder.imgHinhAnh,context,500,360);
+        StorageService.LoadImageUri(rootFile,holder.imgHinhAnh,context,1050,700);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -78,7 +78,7 @@ public class Adapter_listview_images_ver1 extends RecyclerView.Adapter<Adapter_l
                 img_dialog_layout_list_gallery=dialog.findViewById(R.id.img_dialog_layout_list_gallery);
                 imgBtnLose_dialog_layout_list_gallery=dialog.findViewById(R.id.imgBtnLose_dialog_layout_list_gallery);
                 viewFlipper_dialog_layout_list_gallery=dialog.findViewById(R.id.viewFlipper_dialog_layout_list_gallery);
-                StorageService.LoadImageUri(rootFile,img_dialog_layout_list_gallery,context,1280,720);
+                StorageService.LoadImageUri(rootFile,img_dialog_layout_list_gallery,context,1050,700);
                 for(String img:dsHinh)
                 {
                     String filePath=((IsTravel==true)?"Travel/": "Hotel/")+ Id_Document+"/"+img;
@@ -87,7 +87,7 @@ public class Adapter_listview_images_ver1 extends RecyclerView.Adapter<Adapter_l
                     imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                     imageView.setBackground(null);
 
-                    StorageService.LoadImageUri(filePath,imageView,context,1280,720);
+                    StorageService.LoadImageUri(filePath,imageView,context,1050,700);
                     viewFlipper_dialog_layout_list_gallery.addView(imageView);
                 }
 
