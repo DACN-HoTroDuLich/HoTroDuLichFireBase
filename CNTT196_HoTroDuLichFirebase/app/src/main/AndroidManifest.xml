@@ -16,10 +16,13 @@
         android:theme="@style/Theme.CNTT196_HoTroDuLichFirebase"
         tools:targetApi="31">
         <activity
+            android:name=".ActivityDetailBaiVietAdminTravel"
+            android:exported="false" />
+        <activity
             android:name=".ActivityPostDetailAdmin"
             android:exported="false" />
         <activity
-            android:name=".MainActivityAdmin"
+            android:name=".MainActivity"
             android:exported="false" />
         <activity
             android:name=".ActivityDetailHotel"
@@ -37,7 +40,7 @@
             android:name=".ActivitySearch"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ActivityPostTravelAdmin"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

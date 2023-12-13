@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivityAdmin">
+    tools:context=".ActivityPostTravelAdmin">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -68,7 +68,6 @@
                 android:id="@+id/editTextText2"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:layout_margin="24dp"
                 android:background="@drawable/background_white"
                 android:drawableStart="@drawable/baseline_search_24"
                 android:drawablePadding="8dp"
@@ -83,73 +82,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
-                android:layout_margin="24dp">
+                android:layout_marginBottom="20dp">
 
 
                 <TextView
                     android:id="@+id/textView18"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Danh sách bài đăng"
 
-                    android:textSize="18dp"
+                    android:textSize="25dp"
                     android:textColor="@color/blue_dark1"
                     android:textStyle="bold"/>
 
-                <TextView
-                    android:id="@+id/textView17"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="see all"
-                    android:textColor="@color/blue_dark1"
-                    android:textStyle="bold" />
             </LinearLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <ListView
+                android:id="@+id/lvBaiVietAdmin"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginStart="24dp"
-                android:layout_marginEnd="24dp"
-                android:background="@drawable/background_white">
-
-                <ImageView
-                    android:id="@+id/imageView11"
-                    android:layout_width="117dp"
-                    android:layout_height="139dp"
-                    android:layout_margin="8dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0"
-                    app:srcCompat="@drawable/dulich1" />
-
-                <TextView
-                    android:id="@+id/textView13"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Người đăng"
-                    android:layout_marginTop="24dp"
-                    android:textSize="18dp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toStartOf="@+id/imageView11"
-                    app:layout_constraintHorizontal_bias="0.46"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/textView14"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Tên bài đăng"
-                    android:textSize="18dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/imageView11"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView13"
-                    app:layout_constraintVertical_bias="0.13999999" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_height="650dp" />
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
