@@ -2,6 +2,7 @@ package com.example.cntt196_hotrodulichfirebase;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -52,8 +53,28 @@ public class MainActivity extends AppCompatActivity {
         this.USER_.setAuthor(false);
         this.USER_.setDateOfBirth(LocalDate.from(LocalDateTime.now()));
         this.USER_.setFullName("Võ Nguyễn Duy Tân");
-        this.USER_.setAvarta("https://firebasestorage.googleapis.com/v0/b/cntt196-hotrodulich.appspot.com/o/avarta%2Flisa.jpg?alt=media&token=041fad2b-a80d-4323-8c39-d912cceac3cf");
+        this.USER_.setAvarta("lisa.jpg");
         this.USER_.setIdentifier("duytantt9@gmail.com");
+        this.USER_.setUser_UID("UbH5oNtTWwWQWTD6ueqcBAih1yC3");
+
+
+        SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        boolean isFirstTime = sharedPreferences.getBoolean("isFirstTime", true);
+        if (isFirstTime) {
+            Intent intent=new Intent(MainActivity.this,ActivityGetStared.class);
+            MainActivity.this.startActivity(intent);
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("isFirstTime", false);
+            editor.apply();
+        }
+
+
+
+
+
+
+
 
 
         if(savedInstanceState==null)
@@ -147,6 +168,8 @@ public class MainActivity extends AppCompatActivity {
         nav_share.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
+                Intent intent=new Intent(MainActivity.this,ActivityGetStared.class);
+                MainActivity.this.startActivity(intent);
                 Toast.makeText(MainActivity.this, "Selected share", Toast.LENGTH_SHORT).show();
                 return true;
             }
@@ -190,7 +213,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 dialog.dismiss();
-                Toast.makeText(MainActivity.this, "Them bai dang du lich", Toast.LENGTH_SHORT).show();
+                Intent intent =new Intent(MainActivity.this,ActivityNewTravel.class);
+                MainActivity.this.startActivity(intent);
+                //Toast.makeText(MainActivity.this, "Them bai dang du lich", Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -200,8 +225,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 dialog.dismiss();
-                Toast.makeText(MainActivity.this,"Them bài dang khách san",Toast.LENGTH_SHORT).show();
-
+                Intent intent =new Intent(MainActivity.this,ActivityNewHotel.class);
+                MainActivity.this.startActivity(intent);
+                //Toast.makeText(MainActivity.this,"Them bài dang khách san",Toast.LENGTH_SHORT).show();
             }
         });
 

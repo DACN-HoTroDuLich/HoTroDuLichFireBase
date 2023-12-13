@@ -22,7 +22,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.cntt196_hotrodulichfirebase.adapters.AdapterTravel;
 import com.example.cntt196_hotrodulichfirebase.adapters.Adapter_listview_tinh_ver1;
 import com.example.cntt196_hotrodulichfirebase.adapters.Adapter_listview_tinh_ver2;
+import com.example.cntt196_hotrodulichfirebase.models.DanhGia;
 import com.example.cntt196_hotrodulichfirebase.models.HinhAnh;
+import com.example.cntt196_hotrodulichfirebase.models.HoiDap;
 import com.example.cntt196_hotrodulichfirebase.models.Hotel;
 import com.example.cntt196_hotrodulichfirebase.models.NguoiDang;
 import com.example.cntt196_hotrodulichfirebase.models.Travel;
@@ -116,14 +118,15 @@ public class FragmentrTravel extends Fragment {
                              Bundle savedInstanceState) {
         arrayListTravel=new ArrayList<>();
         arrayListTinh=new ArrayList<>();
+        arrayListTinh.add("Tất cả");
         context=requireContext();
         mView= inflater.inflate(R.layout.fragment_fragmentr_travel, container, false);
         addControls(mView);
         //dsTravel=new ArrayList<Travel>();
         adapterTravel=new AdapterTravel(arrayListTravel,context);
 
-        adapter_listview_tinh_ver1=new Adapter_listview_tinh_ver1(arrayListTinh,getContext());
-        adapter_listview_tinh_ver2=new Adapter_listview_tinh_ver2(arrayListTinh, getContext());
+        adapter_listview_tinh_ver1=new Adapter_listview_tinh_ver1(arrayListTinh,getContext(),listView,true);
+        adapter_listview_tinh_ver2=new Adapter_listview_tinh_ver2(arrayListTinh, getContext(), listView,true);
 
 
         lvTinh_ver2_fragmentTravel.setAdapter(adapter_listview_tinh_ver2);
@@ -142,6 +145,7 @@ public class FragmentrTravel extends Fragment {
         //lvTinh_fragmentTravel.startAnimation(animationIn);
         SetStateSrollListView(animationIn, animationOut);
 
+
         return mView;
     }
 
@@ -149,6 +153,7 @@ public class FragmentrTravel extends Fragment {
     {
         final int[] previousVisibleItem = {0};
         final int[] previousVisibleItemLast = {0};
+        //final int[] previousVisibleItemLastParent = {0};
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -157,7 +162,7 @@ public class FragmentrTravel extends Fragment {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (firstVisibleItem > previousVisibleItem[0]) {
+                if (firstVisibleItem > previousVisibleItemLast[0]) {
                     if(previousVisibleItem[0]<previousVisibleItemLast[0])
                     {
                         linearLayout_listTinh_fragmentTravel.startAnimation(animationIn);
@@ -166,9 +171,7 @@ public class FragmentrTravel extends Fragment {
                     lvTinh_ver2_fragmentTravel.setVisibility(View.VISIBLE);
                     linearLayout_listTinh_fragmentTravel.setVisibility(View.GONE);
                 }
-                else if(firstVisibleItem == previousVisibleItem[0])
-                {}
-                else if (firstVisibleItem < previousVisibleItem[0]) {
+                else if (firstVisibleItem < previousVisibleItemLast[0]) {
                     // Người dùng đang cuộn lên
                     if(previousVisibleItem[0]>previousVisibleItemLast[0])
                     {
@@ -179,6 +182,7 @@ public class FragmentrTravel extends Fragment {
                     linearLayout_listTinh_fragmentTravel.setVisibility(View.VISIBLE);
 
                 }
+                //previousVisibleItemLastParent[0]=previousVisibleItemLast[0];
                 previousVisibleItemLast[0]=previousVisibleItem[0];
                 previousVisibleItem[0] = firstVisibleItem;
             }
@@ -209,6 +213,7 @@ public class FragmentrTravel extends Fragment {
 
                                 Travel travel=new Travel();
                                 travel.setID_Document(document.getId());
+                                Log.d("IdTravel"," => " +  travel.getID_Document());
                                 Map<String,Object> subDocument=(Map<String,Object>) document.get("NguoiDang");
                                 Log.d("TravelNguoiDang"," => " +  subDocument);
                                 if(subDocument!=null)
@@ -221,10 +226,92 @@ public class FragmentrTravel extends Fragment {
                                 }
                                 travel.setTieuDe(document.getString("TieuDe"));
                                 travel.setMoTa(document.getString("MoTa"));
-                                travel.setDanhGias(null);
+
+                                ArrayList<Map<String,Object>> subArrayDocumentDanhGia= (ArrayList<Map<String, Object>>) document.get("DanhGia");
+                                if(subArrayDocumentDanhGia!=null) {
+                                   if(subArrayDocumentDanhGia.size()>0)
+                                   {
+                                       Log.d("TravelNguoiDang"," => " +  subArrayDocumentDanhGia);
+                                       ArrayList<DanhGia> dsDanhGia = new ArrayList<>();
+                                       for (Map<String, Object> objectMap : subArrayDocumentDanhGia) {
+                                           DanhGia danhGia = new DanhGia();
+                                           danhGia.setMaNguoiDanhGia((String) objectMap.get("MaNguoiDanhGia"));
+                                           //lay bien thoi gian kieu timestamp
+                                           Timestamp DanhGiatimestamp = (Timestamp) objectMap.get("NgayDang");
+                                           //convert sang localdatetime
+                                           danhGia.setNgayDang(DanhGiatimestamp.toDate().toInstant()
+                                                   .atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+                                           danhGia.setTenNguoiDanhGia((String) objectMap.get("TenNguoiDanhGia"));
+                                           danhGia.setRate((Long) objectMap.get("Rate"));
+                                           Log.e("Rate", "=>" + danhGia.getRate());
+                                           danhGia.setNoiDung((String) objectMap.get("NoiDungDanhGia"));
+                                           danhGia.setImgNguoiDang((String) objectMap.get("avartaNguoiDanhGia"));
+                                           dsDanhGia.add(danhGia);
+                                       }
+                                       travel.setDanhGias(dsDanhGia);
+                                   }
+                                }
+
+                                ArrayList<Map<String,Object>> subArrayDocumentHoiDap=
+                                        (ArrayList<Map<String, Object>>) document.get("HoiDap");
+                                if(subArrayDocumentHoiDap!=null)
+                                {
+                                    if(subArrayDocumentHoiDap.size()>0)
+                                    {
+                                        ArrayList<HoiDap> dsHoiDap=new ArrayList<>();
+                                        for (Map<String,Object> objectMap:subArrayDocumentHoiDap)
+                                        {
+                                            HoiDap hoiDap=new HoiDap();
+                                            hoiDap.setMaHoiDap((String) objectMap.get("MaHoiDap"));
+                                            hoiDap.setMaNguoiHoi((String)objectMap.get("MaNguoiHoi"));
+                                            //lay bien thoi gian kieu timestamp
+                                            Timestamp DanhGiatimestamp= (Timestamp) objectMap.get("NgayHoi");
+                                            //convert sang localdatetime
+                                            hoiDap.setNgayHoi(DanhGiatimestamp.toDate().toInstant()
+                                                    .atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+                                            hoiDap.setTenNguoiHoi((String) objectMap.get("TenNguoiHoi"));
+                                            hoiDap.setNoiDungHoiDap((String) objectMap.get("NoiDungHoiDap"));
+                                            hoiDap.setImgNguoiHoi((String)objectMap.get("avartaNguoiHoi"));
+
+                                            ArrayList<Map<String,Object>> subArrayDocumentTraLoiHoiDap=
+                                                    (ArrayList<Map<String, Object>>) objectMap.get("TraLoi");
+                                            if(subArrayDocumentTraLoiHoiDap!=null)
+                                            {
+                                                ArrayList<HoiDap> dsTraLoi=new ArrayList<>();
+                                                for (Map<String,Object> objectMapTraLoi : subArrayDocumentTraLoiHoiDap)
+                                                {
+                                                    HoiDap traloi=new HoiDap();
+                                                    traloi.setMaHoiDap((String) objectMapTraLoi.get("MaCauTraLoi"));
+                                                    traloi.setMaNguoiHoi((String)objectMapTraLoi.get("MaNguoiTraLoi"));
+                                                    //lay bien thoi gian kieu timestamp
+                                                    Timestamp DanhGiatimestampTraLoi= (Timestamp) objectMapTraLoi.get("NgayTraLoi");
+                                                    //convert sang localdatetime
+                                                    traloi.setNgayHoi(DanhGiatimestampTraLoi.toDate().toInstant()
+                                                            .atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+                                                    traloi.setTenNguoiHoi((String) objectMapTraLoi.get("TenNguoiTraLoi"));
+                                                    traloi.setImgNguoiHoi((String)objectMapTraLoi.get("avartaNguoiHoi"));
+                                                    traloi.setNoiDungHoiDap((String) objectMapTraLoi.get("NoiDungTraLoi"));
+                                                    dsTraLoi.add(traloi);
+                                                }
+                                                hoiDap.setTraLois(dsTraLoi);
+                                            }
+
+                                            dsHoiDap.add(hoiDap);
+                                        }
+                                        travel.setHoiDaps(dsHoiDap);
+                                    }
+
+                                }
+
                                 travel.setDiaChi(document.getString("DiaChi"));
-                                travel.setGiaMax(document.getDouble("GiaMax"));
-                                travel.setGiaMin(document.getDouble("GiaMin"));
+
+                                Number numMax = (Number) document.get("GiaMax");
+                                Number numMin = (Number) document.get("GiaMin");
+                                travel.setGiaMax((long) Float.parseFloat(numMax.toString()));
+                                travel.setGiaMin((long)Float.parseFloat(numMin.toString()));
 
                                 ArrayList<String> dsHinh=new ArrayList<>();
                                 dsHinh= (ArrayList<String>) document.get("HinhAnh");
@@ -236,15 +323,12 @@ public class FragmentrTravel extends Fragment {
                                 travel.setNgayDang(timestamp.toDate().toInstant()
                                         .atZone(ZoneId.systemDefault()).toLocalDateTime());
 
-                                for(int i=0;i<15;i++)
-                                {
-                                    arrayListTravel.add(travel);
-                                    arrayListTravel.add(travel);
-                                    arrayListTravel.add(travel);
-                                    arrayListTravel.add(travel);
-                                    String[] DiaChiSplit=travel.getDiaChi().split(",");
-                                    arrayListTinh.add(DiaChiSplit[DiaChiSplit.length-1]);
-                                }
+                                arrayListTravel.add(travel);
+                                arrayListTravel.add(travel);
+                                arrayListTravel.add(travel);
+                                String[] DiaChiSplit=travel.getDiaChi().split(",");
+                                arrayListTinh.add(DiaChiSplit[DiaChiSplit.length-1]);
+
                                 adapterTravel.notifyDataSetChanged();
                                 adapter_listview_tinh_ver1.notifyDataSetChanged();
                                 adapter_listview_tinh_ver2.notifyDataSetChanged();

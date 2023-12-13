@@ -26,16 +26,29 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.example.cntt196_hotrodulichfirebase.FirebaseService.DialogMessage;
 import com.example.cntt196_hotrodulichfirebase.FirebaseService.StorageService;
 import com.example.cntt196_hotrodulichfirebase.adapters.AdapterNhanXet;
+import com.example.cntt196_hotrodulichfirebase.adapters.Adapter_listview_hoidap_ver1;
 import com.example.cntt196_hotrodulichfirebase.adapters.Adapter_listview_images_ver1;
 import com.example.cntt196_hotrodulichfirebase.adapters.DateTimeToString;
 import com.example.cntt196_hotrodulichfirebase.models.DanhGia;
+import com.example.cntt196_hotrodulichfirebase.models.HoiDap;
+import com.example.cntt196_hotrodulichfirebase.models.NguoiDang;
 import com.example.cntt196_hotrodulichfirebase.models.Travel;
 import com.example.cntt196_hotrodulichfirebase.models.User_;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ActivityDetailTravel extends AppCompatActivity {
 
@@ -44,21 +57,22 @@ public class ActivityDetailTravel extends AppCompatActivity {
             , tvDiaChi_detail, tvGia_detail, tvCountFavorite_detail, tvCountDanhGia_detail_travel;
     private ImageView imgNguoiDung_detail, imgHinhAnhBaiDang_detail;
     private RatingBar AvargarateRatingBar_detail_travel;
-    private ImageButton btnFavorite_detail, btnBack;
-    private RecyclerView recylistHinhAnh_detail;
-    private Button btnXemTatCa_detail_travel, btnThemNhanXet_detail_travel;
+    private ImageButton btnFavorite_detail, btnBack, btnShowMap_detail_Travel;
+    private RecyclerView recylistHinhAnh_detail,lvDanhGia_detail_travel, lvHoiDap_detail_travel;
+    private Button btnXemTatCa_detail_travel, btnThemNhanXet_detail_travel, btnHoiDap_detail_travel;
 
+    private EditText edtHoiDap_detail_travel;
 
-
-    //value
     private Travel travel;
 
     private User_ USER_TRAVEL_DETAIL;
+    private FirebaseFirestore firebaseFirestore;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_travel);
         USER_TRAVEL_DETAIL=MainActivity.USER_;
+        firebaseFirestore= FirebaseFirestore.getInstance();
         Init();
 
         Intent intent= getIntent();
@@ -150,6 +164,109 @@ public class ActivityDetailTravel extends AppCompatActivity {
                 }
             }
         });
+
+        btnShowMap_detail_Travel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundleMap = new Bundle();
+                bundleMap.putSerializable("DiaChi", travel.getDiaChi());
+                Intent intentMap=new Intent(ActivityDetailTravel.this, MapsActivity.class);
+                intentMap.putExtras(bundleMap);
+                ActivityDetailTravel.this.startActivity(intentMap);
+            }
+        });
+        btnHoiDap_detail_travel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(edtHoiDap_detail_travel.getText().equals(""))
+                {
+                    DialogMessage.ThongBao("Hỏi đáp không được để trống",ActivityDetailTravel.this);
+                }
+                else
+                {
+                    String IDTravel= travel.getID_Document();
+                    firebaseFirestore.collection("Travel").document(IDTravel)
+                            .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    if(documentSnapshot.get("HoiDap")==null)
+                                    {
+
+                                        String maHoiDap=MainActivity.USER_.getUser_UID() +
+                                                travel.getID_Document() + DateTimeToString.GenarateID();
+
+                                        ArrayList<Map<String,Object>> arrayHoiDap=new ArrayList<>();
+                                        Map<String,Object> HoiDap=new HashMap<>();
+                                        HoiDap.put("MaHoiDap",maHoiDap);
+                                        HoiDap.put("MaNguoiHoi",MainActivity.USER_.getIdentifier());
+                                        HoiDap.put("NgayHoi", Timestamp.now());
+                                        HoiDap.put("NoiDungHoiDap",edtHoiDap_detail_travel.getText().toString().trim());
+                                        HoiDap.put("TenNguoiHoi", MainActivity.USER_.getFullName());
+                                        HoiDap.put("avartaNguoiHoi", MainActivity.USER_.getAvarta());
+                                        HoiDap.put("TraLoi",null);
+                                        arrayHoiDap.add(HoiDap);
+
+                                        firebaseFirestore.collection("Travel").document(IDTravel)
+                                                .update("HoiDap",arrayHoiDap)
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        DialogMessage.ThongBao("Thêm hỏi đáp thành công",
+                                                                ActivityDetailTravel.this);
+                                                        AfterInsertNhanXet(IDTravel,firebaseFirestore);
+                                                        edtHoiDap_detail_travel.setText("");
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        DialogMessage.ThongBao("Thêm hỏi đáp không thành công",
+                                                                ActivityDetailTravel.this);
+                                                    }
+                                                });
+                                    }
+                                    else
+                                    {
+                                        String maHoiDap=MainActivity.USER_.getUser_UID() +
+                                                travel.getID_Document() + DateTimeToString.GenarateID();
+
+                                        Map<String,Object> HoiDap=new HashMap<>();
+                                        HoiDap.put("MaHoiDap",maHoiDap);
+                                        HoiDap.put("MaNguoiHoi",MainActivity.USER_.getIdentifier());
+                                        HoiDap.put("NgayHoi", Timestamp.now());
+                                        HoiDap.put("NoiDungHoiDap",edtHoiDap_detail_travel.getText().toString().trim());
+                                        HoiDap.put("TenNguoiHoi", MainActivity.USER_.getFullName());
+                                        HoiDap.put("avartaNguoiHoi", MainActivity.USER_.getAvarta());
+                                        HoiDap.put("TraLoi",null);
+
+                                        firebaseFirestore.collection("Travel").document(IDTravel)
+                                                .update("HoiDap", FieldValue.arrayUnion(HoiDap))
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        DialogMessage.ThongBao("Thêm hỏi đáp thành công",
+                                                                ActivityDetailTravel.this);
+                                                        AfterInsertNhanXet(IDTravel,firebaseFirestore);
+
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        DialogMessage.ThongBao("Thêm hỏi đáp không thành công",
+                                                                ActivityDetailTravel.this);
+                                                    }
+                                                });
+                                    }
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.e("DIAOLOGNhanXet", "onFailure: Loi load document");
+                                }
+                            });
+
+                }
+            }
+        });
     }
 
     private void LoadDialogListNhanXet()
@@ -180,7 +297,7 @@ public class ActivityDetailTravel extends AppCompatActivity {
         });
 
         AdapterNhanXet adapterNhanXet=new AdapterNhanXet(ActivityDetailTravel.this,travel.getDanhGias()
-                ,travel.getID_Document(),2);
+                ,travel.getID_Document(),2, true);
         lvDanhGia_dialog_layout_danh_gia.setAdapter(adapterNhanXet);
         lvDanhGia_dialog_layout_danh_gia.setLayoutManager(new LinearLayoutManager(ActivityDetailTravel.this
                 , LinearLayoutManager.VERTICAL, false));
@@ -205,11 +322,9 @@ public class ActivityDetailTravel extends AppCompatActivity {
         edtDanhGia_dialog_add_danhgia = dialog.findViewById(R.id.edtDanhGia_dialog_add_danhgia);
         tvTenNguoiDang_dialog_add_danhgia=dialog.findViewById(R.id.tvTenNguoiDang_dialog_add_danhgia);
 
-        Picasso picassoHotelDetail= Picasso.with(ActivityDetailTravel.this);
-        picassoHotelDetail.load(USER_TRAVEL_DETAIL.getAvarta()).resize(90, 90)
-                .placeholder(R.drawable.icon2)
-                .into(imgNguoiDang_dialog_add_danhgia);
-        picassoHotelDetail.invalidate(USER_TRAVEL_DETAIL.getAvarta());
+        String filePath="avarta/" + MainActivity.USER_.getAvarta();
+        StorageService.LoadImageUri_Avarta(filePath,imgNguoiDang_dialog_add_danhgia,
+                ActivityDetailTravel.this);
 
         tvTenNguoiDang_dialog_add_danhgia.setText(USER_TRAVEL_DETAIL.getFullName());
         dialog.show();
@@ -225,8 +340,224 @@ public class ActivityDetailTravel extends AppCompatActivity {
                 dialog.cancel();
             }
         });
+        btnNhanXet_detail_hotel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(edtDanhGia_dialog_add_danhgia.getText().equals(""))
+                {
+                    DialogMessage.ThongBao("Nhận xét của bạn đang trống",dialog.getContext());
+                }
+                else
+                {
+                    String IDTravel=travel.getID_Document();
+                    FirebaseFirestore firebaseFirestore= FirebaseFirestore.getInstance();
+                    firebaseFirestore.collection("Travel").document(IDTravel)
+                            .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    if(documentSnapshot.get("DanhGia")==null)
+                                    {
+                                        ArrayList<Map<String,Object>> arrayNhanXet=new ArrayList<>();
+                                        Map<String,Object> NhanXet=new HashMap<>();
+                                        NhanXet.put("MaNguoiDanhGia",MainActivity.USER_.getIdentifier());
+                                        NhanXet.put("NgayDang", Timestamp.now());
+                                        NhanXet.put("NoiDungDanhGia",edtDanhGia_dialog_add_danhgia.getText().toString().trim());
+                                        long rate= (long) ratingBar_dialog_add_danhgia.getRating();
+                                        NhanXet.put("Rate", rate);
+                                        NhanXet.put("TenNguoiDanhGia", MainActivity.USER_.getFullName());
+                                        NhanXet.put("avartaNguoiDanhGia", MainActivity.USER_.getAvarta());
+                                        arrayNhanXet.add(NhanXet);
+
+                                        firebaseFirestore.collection("Travel").document(IDTravel)
+                                                .update("DanhGia",arrayNhanXet)
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        DialogMessage.ThongBao("Thêm nhận xét thành công",
+                                                                dialog.getContext());
+                                                        AfterInsertNhanXet(IDTravel,firebaseFirestore);
+                                                        dialog.dismiss();
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        DialogMessage.ThongBao("Thêm nhận xét không thành công",
+                                                                dialog.getContext());
+                                                    }
+                                                });
+                                    }
+                                    else
+                                    {
+                                        {
+                                            ArrayList<Map<String,Object>> arrayNhanXet=new ArrayList<>();
+                                            Map<String,Object> NhanXet=new HashMap<>();
+                                            NhanXet.put("MaNguoiDanhGia",MainActivity.USER_.getIdentifier());
+                                            NhanXet.put("NgayDang", Timestamp.now());
+                                            NhanXet.put("NoiDungDanhGia",edtDanhGia_dialog_add_danhgia.getText().toString().trim());
+                                            long rate= (long) ratingBar_dialog_add_danhgia.getRating();
+                                            NhanXet.put("Rate", rate);
+                                            NhanXet.put("TenNguoiDanhGia", MainActivity.USER_.getFullName());
+                                            NhanXet.put("avartaNguoiDanhGia", MainActivity.USER_.getAvarta());
+                                            arrayNhanXet.add(NhanXet);
+
+                                            firebaseFirestore.collection("Travel").document(IDTravel)
+                                                    .update("DanhGia", FieldValue.arrayUnion(NhanXet))
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void unused) {
+                                                            DialogMessage.ThongBao("Thêm nhận xét thành công",
+                                                                    dialog.getContext());
+                                                            AfterInsertNhanXet(IDTravel,firebaseFirestore);
+                                                            dialog.dismiss();
+                                                        }
+                                                    }).addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            DialogMessage.ThongBao("Thêm nhận xét không thành công",
+                                                                    dialog.getContext());
+                                                        }
+                                                    });
+                                        }
+                                    }
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.e("DIAOLOGNhanXet", "onFailure: Loi load document");
+                                }
+                            });
+
+                }
+            }
+
+        });
 
 
+    }
+
+    private void AfterInsertNhanXet( String IDTravel,FirebaseFirestore firebaseFirestore)
+    {
+        firebaseFirestore.collection("Travel").document(IDTravel)
+                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if(documentSnapshot.getId()!=null)
+                        {
+                            travel.setID_Document(documentSnapshot.getId());
+                            Log.d("IdTravel"," => " +  travel.getID_Document());
+                            Map<String,Object> subDocument=(Map<String,Object>) documentSnapshot.get("NguoiDang");
+                            Log.d("TravelNguoiDang"," => " +  subDocument);
+                            if(subDocument!=null)
+                            {
+                                NguoiDang nguoiDang=new NguoiDang();
+                                nguoiDang.setMaNguoiDang((String)subDocument.get("MaNguoiDang"));
+                                nguoiDang.setTenNguoiDang((String)subDocument.get("TenNguoiDang"));
+                                nguoiDang.setAnhDaiDien((String)subDocument.get("AnhDaiDien"));
+                                travel.setNguoiDang(nguoiDang);
+                            }
+                            travel.setTieuDe(documentSnapshot.getString("TieuDe"));
+                            travel.setMoTa(documentSnapshot.getString("MoTa"));
+
+                            ArrayList<Map<String,Object>> subArrayDocumentDanhGia= (ArrayList<Map<String, Object>>) documentSnapshot.get("DanhGia");
+                            if(subArrayDocumentDanhGia!=null) {
+                                if(subArrayDocumentDanhGia.size()>0)
+                                {
+                                    ArrayList<DanhGia> dsDanhGia = new ArrayList<>();
+                                    for (Map<String, Object> objectMap : subArrayDocumentDanhGia) {
+                                        DanhGia danhGia = new DanhGia();
+                                        danhGia.setMaNguoiDanhGia((String) objectMap.get("MaNguoiDanhGia"));
+                                        //lay bien thoi gian kieu timestamp
+                                        Timestamp DanhGiatimestamp = (Timestamp) objectMap.get("NgayDang");
+                                        //convert sang localdatetime
+                                        danhGia.setNgayDang(DanhGiatimestamp.toDate().toInstant()
+                                                .atZone(ZoneId.systemDefault()).toLocalDateTime());
+                                        danhGia.setTenNguoiDanhGia((String) objectMap.get("TenNguoiDanhGia"));
+                                        danhGia.setRate((Long) objectMap.get("Rate"));
+                                        danhGia.setNoiDung((String) objectMap.get("NoiDungDanhGia"));
+                                        danhGia.setImgNguoiDang((String) objectMap.get("avartaNguoiDanhGia"));
+                                        dsDanhGia.add(danhGia);
+                                    }
+                                    travel.setDanhGias(dsDanhGia);
+                                }
+                            }
+
+                            ArrayList<Map<String,Object>> subArrayDocumentHoiDap=
+                                    (ArrayList<Map<String, Object>>) documentSnapshot.get("HoiDap");
+                            if(subArrayDocumentHoiDap!=null)
+                            {
+                               if(subArrayDocumentHoiDap.size()>0)
+                               {
+                                   ArrayList<HoiDap> dsHoiDap=new ArrayList<>();
+                                   for (Map<String,Object> objectMap:subArrayDocumentHoiDap)
+                                   {
+                                       HoiDap hoiDap=new HoiDap();
+                                       hoiDap.setMaHoiDap((String) objectMap.get("MaHoiDap"));
+                                       hoiDap.setMaNguoiHoi((String)objectMap.get("MaNguoiHoi"));
+                                       //lay bien thoi gian kieu timestamp
+                                       Timestamp DanhGiatimestamp= (Timestamp) objectMap.get("NgayHoi");
+                                       //convert sang localdatetime
+                                       hoiDap.setNgayHoi(DanhGiatimestamp.toDate().toInstant()
+                                               .atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+                                       hoiDap.setTenNguoiHoi((String) objectMap.get("TenNguoiHoi"));
+                                       hoiDap.setNoiDungHoiDap((String) objectMap.get("NoiDungHoiDap"));
+                                       hoiDap.setImgNguoiHoi((String)objectMap.get("avartaNguoiHoi"));
+
+                                       ArrayList<Map<String,Object>> subArrayDocumentTraLoiHoiDap=
+                                               (ArrayList<Map<String, Object>>) objectMap.get("TraLoi");
+                                       if(subArrayDocumentTraLoiHoiDap!=null)
+                                       {
+                                           ArrayList<HoiDap> dsTraLoi=new ArrayList<>();
+                                           for (Map<String,Object> objectMapTraLoi : subArrayDocumentTraLoiHoiDap)
+                                           {
+                                               HoiDap traloi=new HoiDap();
+                                               traloi.setMaHoiDap((String) objectMapTraLoi.get("MaCauTraLoi"));
+                                               traloi.setMaNguoiHoi((String)objectMapTraLoi.get("MaNguoiTraLoi"));
+                                               //lay bien thoi gian kieu timestamp
+                                               Timestamp DanhGiatimestampTraLoi= (Timestamp) objectMapTraLoi.get("NgayTraLoi");
+                                               //convert sang localdatetime
+                                               traloi.setNgayHoi(DanhGiatimestampTraLoi.toDate().toInstant()
+                                                       .atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+                                               traloi.setTenNguoiHoi((String) objectMapTraLoi.get("TenNguoiTraLoi"));
+                                               traloi.setImgNguoiHoi((String)objectMapTraLoi.get("avartaNguoiHoi"));
+                                               traloi.setNoiDungHoiDap((String) objectMapTraLoi.get("NoiDungTraLoi"));
+                                               dsTraLoi.add(traloi);
+                                           }
+                                           hoiDap.setTraLois(dsTraLoi);
+                                       }
+
+                                       dsHoiDap.add(hoiDap);
+                                   }
+                                   travel.setHoiDaps(dsHoiDap);
+                               }
+                            }
+
+                            travel.setDiaChi(documentSnapshot.getString("DiaChi"));
+
+                            Number numMax = (Number) documentSnapshot.get("GiaMax");
+                            Number numMin = (Number) documentSnapshot.get("GiaMin");
+                            travel.setGiaMax((long) Float.parseFloat(numMax.toString()));
+                            travel.setGiaMin((long)Float.parseFloat(numMin.toString()));
+
+                            ArrayList<String> dsHinh=new ArrayList<>();
+                            dsHinh= (ArrayList<String>) documentSnapshot.get("HinhAnh");
+                            travel.setHinhAnhs(dsHinh);
+
+
+                            Timestamp timestamp=documentSnapshot.getTimestamp("NgayDang");
+
+                            travel.setNgayDang(timestamp.toDate().toInstant()
+                                    .atZone(ZoneId.systemDefault()).toLocalDateTime());
+                        }
+                        SetValueToControl();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e("DIAOLOGNhanXet", "onFailure: Loi load document");
+                    }
+                });
     }
 
     private void SetValueToControl()
@@ -270,8 +601,44 @@ public class ActivityDetailTravel extends AppCompatActivity {
                 for (DanhGia danhGia : travel.getDanhGias()) {
                     rate += danhGia.getRate();
                 }
-                rate = rate / travel.getDanhGias().size();
+                Log.e("LogDsDanhGia", "SetValueToControl: "+travel.getDanhGias().size() );
+                rate= Math.round(rate / travel.getDanhGias().size() * 10) / 10f;
                 AvargarateRatingBar_detail_travel.setRating(rate);
+                tvCountDanhGia_detail_travel.setText(rate+"\n"+"Đánh giá "+"("+travel.getDanhGias().size()+")");
+                AvargarateRatingBar_detail_travel.setIsIndicator(true);
+                ArrayList<DanhGia> dsDanhGia=new ArrayList<>();
+                if(travel.getDanhGias().size()<3)
+                {
+                    for (DanhGia danhGia:travel.getDanhGias())
+                    {
+                        dsDanhGia.add(danhGia);
+                    }
+                }
+                else {
+                    dsDanhGia.add(travel.getDanhGias().get(0));
+                    dsDanhGia.add(travel.getDanhGias().get(1));
+                }
+                AdapterNhanXet adapterNhanXet=new AdapterNhanXet(ActivityDetailTravel.this
+                        ,dsDanhGia,travel.getID_Document(),1,true);
+                lvDanhGia_detail_travel.setAdapter(adapterNhanXet);
+                lvDanhGia_detail_travel.setLayoutManager(new LinearLayoutManager(ActivityDetailTravel.this
+                        , LinearLayoutManager.VERTICAL, false));
+
+            }
+            else
+            {
+                tvCountDanhGia_detail_travel.setText("0.0\n"+"Đánh giá(0)");
+                AvargarateRatingBar_detail_travel.setIsIndicator(true);
+            }
+
+            if(travel.getHoiDaps()!=null)
+            {
+                Adapter_listview_hoidap_ver1 adapter_listview_hoidap_ver1=new Adapter_listview_hoidap_ver1(travel.getHoiDaps(),
+                        ActivityDetailTravel.this,travel.getID_Document(),true);
+                adapter_listview_hoidap_ver1.notifyDataSetChanged();
+                lvHoiDap_detail_travel.setAdapter(adapter_listview_hoidap_ver1);
+                lvHoiDap_detail_travel.setLayoutManager(new LinearLayoutManager(ActivityDetailTravel.this,
+                        RecyclerView.VERTICAL,false));
             }
 
             if(travel.getHinhAnhs()!=null)
@@ -282,7 +649,8 @@ public class ActivityDetailTravel extends AppCompatActivity {
                     StorageService.LoadImageUri(rootFile,imgHinhAnhBaiDang_detail,this,1280,750);
 
                     Adapter_listview_images_ver1 adapter_listview_images_ver1=new
-                            Adapter_listview_images_ver1(travel.getHinhAnhs(),ActivityDetailTravel.this,travel.getID_Document(),true);
+                            Adapter_listview_images_ver1(travel.getHinhAnhs(),ActivityDetailTravel.this
+                            ,travel.getID_Document(),true);
                     recylistHinhAnh_detail.setAdapter(adapter_listview_images_ver1);
                     recylistHinhAnh_detail.setLayoutManager(new LinearLayoutManager(ActivityDetailTravel.this
                             , LinearLayoutManager.HORIZONTAL, false));
@@ -294,6 +662,7 @@ public class ActivityDetailTravel extends AppCompatActivity {
     }
     private void Init()
     {
+        btnShowMap_detail_Travel=findViewById(R.id.btnShowMap_detail_Travel);
         tvTieuDe_detail=findViewById(R.id.tvTieuDe_detail);
 
         tvTenNguoiDung_detail= findViewById(R.id.tvTenNguoiDung_detail);
@@ -309,9 +678,15 @@ public class ActivityDetailTravel extends AppCompatActivity {
         btnFavorite_detail= findViewById(R.id.btnFavorite_detail);
         btnBack=findViewById(R.id.btnBack);
         recylistHinhAnh_detail=findViewById(R.id.recylistHinhAnh_detail);
+        lvDanhGia_detail_travel=findViewById(R.id.lvDanhGia_detail_travel);
 
         btnXemTatCa_detail_travel=findViewById(R.id.btnXemTatCa_detail_travel);
         btnThemNhanXet_detail_travel=findViewById(R.id.btnThemNhanXet_detail_travel);
         tvCountDanhGia_detail_travel=findViewById(R.id.tvCountDanhGia_detail_travel);
+        AvargarateRatingBar_detail_travel=findViewById(R.id.AvargarateRatingBar_detail_travel);
+
+        edtHoiDap_detail_travel=findViewById(R.id.edtHoiDap_detail_travel);
+        lvHoiDap_detail_travel=findViewById(R.id.lvHoiDap_detail_travel);
+        btnHoiDap_detail_travel=findViewById(R.id.btnHoiDap_detail_travel);
     }
 }

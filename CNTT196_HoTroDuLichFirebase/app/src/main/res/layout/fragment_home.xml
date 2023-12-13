@@ -49,53 +49,34 @@
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:background="@color/Silver">
+
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/viewPager2_frgHome"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp" />
+                <me.relex.circleindicator.CircleIndicator3
+                    android:id="@+id/circleIndicator3_frgHome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    app:ci_drawable="@color/CadetBlue1"
+                    android:layout_gravity="bottom|center"/>
                 <androidx.cardview.widget.CardView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginLeft="10dp"
-                    app:cardCornerRadius="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="left|center"
-                    android:background="@color/white">
+                    android:layout_marginLeft="10dp"
+                    android:background="@color/white"
+                    app:cardCornerRadius="10dp">
+
                     <ImageButton
                         android:id="@+id/btn_Previous_frgHome"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:src="@drawable/baseline_keyboard_arrow_left_24"
+                        android:background="#80000000"
                         android:scaleType="fitCenter"
-                        android:background="#80000000"/>
+                        android:src="@drawable/baseline_keyboard_arrow_left_24" />
                 </androidx.cardview.widget.CardView>
-                <ViewFlipper
-                    android:id="@+id/viewFlipper"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ImageView
-                        android:id="@+id/img1_Flipper_frgHome"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/dulich2"
-                        android:scaleType="fitCenter"/>
-                    <ImageView
-                        android:id="@+id/img2_Flipper_frgHome"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/dulich3" />
-                    <ImageView
-                        android:id="@+id/img3_Flipper_frgHome"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/dulich4"/>
-                    <ImageView
-                        android:id="@+id/img4_Flipper_frgHome"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/dulich1" />
-                    <ImageView
-                        android:id="@+id/img5_Flipper_frgHome"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/dulich5" />
-                </ViewFlipper>
                 <androidx.cardview.widget.CardView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
@@ -227,6 +208,54 @@
                 android:layout_height="match_parent"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Galery》"
+                android:textStyle="bold"
+                android:textSize="20dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_marginTop="15dp"/>
+
+            <androidx.constraintlayout.helper.widget.Flow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <TableLayout
+                android:id="@+id/tablelayout_frgHome"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <ImageView
+                        android:id="@+id/imgTablelayout_fraHome"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:src="@tools:sample/backgrounds/scenic" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </TableLayout>
+
         </LinearLayout>
     </ScrollView>
 </FrameLayout>

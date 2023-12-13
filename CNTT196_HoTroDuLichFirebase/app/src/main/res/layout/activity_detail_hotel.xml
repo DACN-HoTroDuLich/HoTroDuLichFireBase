@@ -117,7 +117,8 @@
                     android:id="@+id/recylistHinhAnh_detail_hotel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"/>
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -323,15 +324,18 @@
                             android:text="Gửi" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-
-
-
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/lvHoiDap_detail_hotel"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/boder"
+                    android:padding="10dp"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp">
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/lvHoiDap_detail_hotel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
